@@ -66,3 +66,20 @@ resource "aws_iam_role" "ecs_task" {
   name               = "cloud-design-ecs-task-role"
   assume_role_policy = data.aws_iam_policy_document.ecs_assume_role.json
 }
+
+resource "aws_iam_role_policy" "ecs_execution_secrets" {
+  name = "cloud-design-ecs-execution-secrets"
+  role = aws_iam_role.ecs_execution.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+
+    Statement = [{
+      Effect = "Allow"
+      Action = [
+        "secretsmanager:GetSecretValue"
+      ]
+      Resource = "arn:aws:secretsmanager:us-east-1:975050047403:secret:cloud-design/app-secrets-*"
+    }]
+  })
+}

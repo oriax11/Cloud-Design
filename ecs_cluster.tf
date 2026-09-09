@@ -28,7 +28,7 @@ data "aws_ami" "amazon_linux_2" {
 resource "aws_launch_template" "ecs" {
   name_prefix   = "cloud-design-ecs-"
   image_id      = data.aws_ami.amazon_linux_2.id
-  instance_type = "t3.micro"
+  instance_type = "t3.small"
 
   user_data = base64encode(<<-EOF
     #!/bin/bash
