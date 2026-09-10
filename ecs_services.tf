@@ -76,6 +76,15 @@ resource "aws_ecs_task_definition" "api-gateway" {
           valueFrom = "${aws_secretsmanager_secret.app.arn}:RABBITMQ_PASSWORD::"
         }
       ]
+      logConfiguration = {
+        logDriver = "awslogs"
+
+        options = {
+          awslogs-group         = aws_cloudwatch_log_group.api_gateway.name
+          awslogs-region        = "us-east-1"
+          awslogs-stream-prefix = "api-gateway"
+        }
+      }
     }
   ])
 }
@@ -223,6 +232,15 @@ resource "aws_ecs_task_definition" "billing" {
           valueFrom = "${aws_secretsmanager_secret.app.arn}:RABBITMQ_QUEUE::"
         }
       ]
+      logConfiguration = {
+        logDriver = "awslogs"
+
+        options = {
+          awslogs-group         = aws_cloudwatch_log_group.billing.name
+          awslogs-region        = "us-east-1"
+          awslogs-stream-prefix = "billing"
+        }
+      }
     }
   ])
 }
@@ -279,6 +297,15 @@ resource "aws_ecs_task_definition" "rabbit_queue" {
           valueFrom = "${aws_secretsmanager_secret.app.arn}:RABBITMQ_QUEUE::"
         }
       ]
+      logConfiguration = {
+        logDriver = "awslogs"
+
+        options = {
+          awslogs-group         = aws_cloudwatch_log_group.rabbitmq.name
+          awslogs-region        = "us-east-1"
+          awslogs-stream-prefix = "rabbitmq"
+        }
+      }
     }
   ])
 }
@@ -329,6 +356,15 @@ resource "aws_ecs_task_definition" "inventory_db" {
           valueFrom = "${aws_secretsmanager_secret.app.arn}:INVENTORY_DB_NAME::"
         }
       ]
+      logConfiguration = {
+        logDriver = "awslogs"
+
+        options = {
+          awslogs-group         = aws_cloudwatch_log_group.inventory_db.name
+          awslogs-region        = "us-east-1"
+          awslogs-stream-prefix = "inventory-db"
+        }
+      }
     }
   ])
 }
@@ -379,6 +415,15 @@ resource "aws_ecs_task_definition" "billing_db" {
           valueFrom = "${aws_secretsmanager_secret.app.arn}:BILLING_DB_NAME::"
         }
       ]
+      logConfiguration = {
+        logDriver = "awslogs"
+
+        options = {
+          awslogs-group         = aws_cloudwatch_log_group.billing_db.name
+          awslogs-region        = "us-east-1"
+          awslogs-stream-prefix = "billing-db"
+        }
+      }
     }
   ])
 }
@@ -580,14 +625,14 @@ resource "aws_ecs_service" "rabbit_queue" {
 # =====================================================
 
 resource "aws_ecs_service" "inventory_db" {
-  name                 = "cloud-design-inventory-db"
-  cluster              = aws_ecs_cluster.main.id
-  task_definition      = aws_ecs_task_definition.inventory_db.arn
-  desired_count        = 1
-  force_new_deployment = true
-    enable_execute_command = true
+  name                   = "cloud-design-inventory-db"
+  cluster                = aws_ecs_cluster.main.id
+  task_definition        = aws_ecs_task_definition.inventory_db.arn
+  desired_count          = 1
+  force_new_deployment   = true
+  enable_execute_command = true
 
-  launch_type          = "FARGATE"
+  launch_type = "FARGATE"
 
   network_configuration {
     subnets = [
@@ -626,14 +671,14 @@ resource "aws_ecs_service" "inventory_db" {
 # =====================================================
 
 resource "aws_ecs_service" "billing_db" {
-  name                 = "cloud-design-billing-db"
-  cluster              = aws_ecs_cluster.main.id
-  task_definition      = aws_ecs_task_definition.billing_db.arn
-  desired_count        = 1
-  force_new_deployment = true
-    enable_execute_command = true
+  name                   = "cloud-design-billing-db"
+  cluster                = aws_ecs_cluster.main.id
+  task_definition        = aws_ecs_task_definition.billing_db.arn
+  desired_count          = 1
+  force_new_deployment   = true
+  enable_execute_command = true
 
-  launch_type          = "FARGATE"
+  launch_type = "FARGATE"
 
   network_configuration {
     subnets = [

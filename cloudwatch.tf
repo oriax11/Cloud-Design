@@ -12,3 +12,250 @@ resource "aws_cloudwatch_log_group" "api_gateway" {
   name              = "/ecs/cloud-design-api-gateway"
   retention_in_days = 7
 }
+resource "aws_cloudwatch_log_group" "inventory_db" {
+  name              = "/ecs/cloud-design-inventory-db"
+  retention_in_days = 7
+}
+
+resource "aws_cloudwatch_log_group" "billing_db" {
+  name              = "/ecs/cloud-design-billing-db"
+  retention_in_days = 7
+}
+
+resource "aws_cloudwatch_log_group" "rabbitmq" {
+  name              = "/ecs/cloud-design-rabbitmq"
+  retention_in_days = 7
+}
+
+resource "aws_cloudwatch_dashboard" "main" {
+  dashboard_name = "cloud-design"
+
+  dashboard_body = jsonencode({
+    widgets = [
+
+      # =====================================================
+      # API GATEWAY CPU
+      # =====================================================
+      {
+        type   = "metric"
+        width  = 6
+        height = 4
+
+        properties = {
+          title = "API Gateway CPU"
+
+          metrics = [
+            [
+              "AWS/ECS",
+              "CPUUtilization",
+              "ClusterName",
+              aws_ecs_cluster.main.name,
+              "ServiceName",
+              aws_ecs_service.api-gateway.name
+            ]
+          ]
+
+          period = 300
+          stat   = "Average"
+          region = "us-east-1"
+
+          view = "singleValue"
+
+          singleValueFullPrecision = false
+        }
+      },
+
+      # =====================================================
+      # API GATEWAY MEMORY
+      # =====================================================
+      {
+        type   = "metric"
+        width  = 6
+        height = 4
+
+        properties = {
+          title = "API Gateway Memory"
+
+          metrics = [
+            [
+              "AWS/ECS",
+              "MemoryUtilization",
+              "ClusterName",
+              aws_ecs_cluster.main.name,
+              "ServiceName",
+              aws_ecs_service.api-gateway.name
+            ]
+          ]
+
+          period = 300
+          stat   = "Average"
+          region = "us-east-1"
+
+          view = "singleValue"
+
+          singleValueFullPrecision = false
+        }
+      },
+
+      # =====================================================
+      # INVENTORY CPU
+      # =====================================================
+      {
+        type   = "metric"
+        width  = 6
+        height = 4
+
+        properties = {
+          title = "Inventory CPU"
+
+          metrics = [
+            [
+              "AWS/ECS",
+              "CPUUtilization",
+              "ClusterName",
+              aws_ecs_cluster.main.name,
+              "ServiceName",
+              aws_ecs_service.inventory_app.name
+            ]
+          ]
+
+          period = 300
+          stat   = "Average"
+          region = "us-east-1"
+
+          view = "singleValue"
+
+          singleValueFullPrecision = false
+        }
+      },
+
+      # =====================================================
+      # INVENTORY MEMORY
+      # =====================================================
+      {
+        type   = "metric"
+        width  = 6
+        height = 4
+
+        properties = {
+          title = "Inventory Memory"
+
+          metrics = [
+            [
+              "AWS/ECS",
+              "MemoryUtilization",
+              "ClusterName",
+              aws_ecs_cluster.main.name,
+              "ServiceName",
+              aws_ecs_service.inventory_app.name
+            ]
+          ]
+
+          period = 300
+          stat   = "Average"
+          region = "us-east-1"
+
+          view = "singleValue"
+
+          singleValueFullPrecision = false
+        }
+      },
+
+      # =====================================================
+      # BILLING CPU
+      # =====================================================
+      {
+        type   = "metric"
+        width  = 6
+        height = 4
+
+        properties = {
+          title = "Billing CPU"
+
+          metrics = [
+            [
+              "AWS/ECS",
+              "CPUUtilization",
+              "ClusterName",
+              aws_ecs_cluster.main.name,
+              "ServiceName",
+              aws_ecs_service.billing_app.name
+            ]
+          ]
+
+          period = 300
+          stat   = "Average"
+          region = "us-east-1"
+
+          view = "singleValue"
+
+          singleValueFullPrecision = false
+        }
+      },
+
+      # =====================================================
+      # BILLING MEMORY
+      # =====================================================
+      {
+        type   = "metric"
+        width  = 6
+        height = 4
+
+        properties = {
+          title = "Billing Memory"
+
+          metrics = [
+            [
+              "AWS/ECS",
+              "MemoryUtilization",
+              "ClusterName",
+              aws_ecs_cluster.main.name,
+              "ServiceName",
+              aws_ecs_service.billing_app.name
+            ]
+          ]
+
+          period = 300
+          stat   = "Average"
+          region = "us-east-1"
+
+          view = "singleValue"
+
+          singleValueFullPrecision = false
+        }
+      },
+
+      # =====================================================
+      # ALB REQUEST COUNT
+      # =====================================================
+      {
+        type   = "metric"
+        width  = 6
+        height = 4
+
+        properties = {
+          title = "ALB Requests"
+
+          metrics = [
+            [
+              "AWS/ApplicationELB",
+              "RequestCount",
+              "LoadBalancer",
+              aws_lb.main.arn_suffix
+            ]
+          ]
+
+          period = 300
+          stat   = "Sum"
+          region = "us-east-1"
+
+          view = "singleValue"
+
+          singleValueFullPrecision = false
+        }
+      },
+
+
+    ]
+  })
+}
