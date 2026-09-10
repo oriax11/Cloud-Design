@@ -327,6 +327,20 @@ resource "aws_ecs_task_definition" "inventory_db" {
   execution_role_arn = aws_iam_role.ecs_execution.arn
   task_role_arn      = aws_iam_role.ecs_task.arn
 
+  volume {
+    name = "inventory-db-data"
+
+    efs_volume_configuration {
+      file_system_id     = aws_efs_file_system.inventory_db.id
+      transit_encryption = "ENABLED"
+
+      authorization_config {
+        access_point_id = aws_efs_access_point.inventory_db.id
+        iam             = "ENABLED"
+      }
+    }
+  }
+
   container_definitions = jsonencode([
     {
       name      = "inventory-db"
@@ -339,6 +353,14 @@ resource "aws_ecs_task_definition" "inventory_db" {
           containerPort = 5432
           hostPort      = 5432
           protocol      = "tcp"
+        }
+      ]
+
+      mountPoints = [
+        {
+          sourceVolume  = "inventory-db-data"
+          containerPath = "/var/lib/postgresql/"
+          readOnly      = false
         }
       ]
 
@@ -386,6 +408,20 @@ resource "aws_ecs_task_definition" "billing_db" {
   execution_role_arn = aws_iam_role.ecs_execution.arn
   task_role_arn      = aws_iam_role.ecs_task.arn
 
+  volume {
+    name = "billing-db-data"
+
+    efs_volume_configuration {
+      file_system_id     = aws_efs_file_system.billing_db.id
+      transit_encryption = "ENABLED"
+
+      authorization_config {
+        access_point_id = aws_efs_access_point.billing_db.id
+        iam             = "ENABLED"
+      }
+    }
+  }
+
   container_definitions = jsonencode([
     {
       name      = "billing-db"
@@ -398,6 +434,14 @@ resource "aws_ecs_task_definition" "billing_db" {
           containerPort = 5432
           hostPort      = 5432
           protocol      = "tcp"
+        }
+      ]
+
+      mountPoints = [
+        {
+          sourceVolume  = "billing-db-data"
+          containerPath = "/var/lib/postgresql/"
+          readOnly      = false
         }
       ]
 
@@ -661,7 +705,9 @@ resource "aws_ecs_service" "inventory_db" {
   }
 
   depends_on = [
-    aws_service_discovery_private_dns_namespace.main
+    aws_service_discovery_private_dns_namespace.main,
+    aws_efs_mount_target.inventory_db_a,
+    aws_efs_mount_target.inventory_db_b
   ]
 }
 
@@ -707,6 +753,8 @@ resource "aws_ecs_service" "billing_db" {
   }
 
   depends_on = [
-    aws_service_discovery_private_dns_namespace.main
+    aws_service_discovery_private_dns_namespace.main,
+    aws_efs_mount_target.inventory_db_a,
+    aws_efs_mount_target.inventory_db_b
   ]
 }
