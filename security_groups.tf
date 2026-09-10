@@ -152,7 +152,7 @@ resource "aws_security_group" "rabbitmq" {
     from_port       = 5672
     to_port         = 5672
     protocol        = "tcp"
-    security_groups = [aws_security_group.api_gateway.id]
+    security_groups = [aws_security_group.api_gateway.id, aws_security_group.billing_app.id]
   }
 
   egress {
@@ -181,14 +181,14 @@ resource "aws_security_group" "billing_app" {
   description = "Security group for Billing App"
   vpc_id      = aws_vpc.main.id
 
-  # RabbitMQ can access Billing App
-  ingress {
-    description     = "Traffic from RabbitMQ"
-    from_port       = 8080
-    to_port         = 8080
-    protocol        = "tcp"
-    security_groups = [aws_security_group.rabbitmq.id]
-  }
+  # # RabbitMQ can access Billing App
+  # ingress {
+  #   description     = "Traffic from RabbitMQ"
+  #   from_port       = 8080
+  #   to_port         = 8080
+  #   protocol        = "tcp"
+  #   security_groups = [aws_security_group.rabbitmq.id]
+  # }
 
   egress {
     description = "Allow outbound traffic"

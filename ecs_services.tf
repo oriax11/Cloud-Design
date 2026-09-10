@@ -57,10 +57,6 @@ resource "aws_ecs_task_definition" "api-gateway" {
           value = "5672"
         },
         {
-          name  = "RABBITMQ_QUEUE"
-          value = "billing_queue"
-        },
-        {
           name  = "APIGATEWAY_PORT"
           value = "3000"
         }
@@ -74,6 +70,10 @@ resource "aws_ecs_task_definition" "api-gateway" {
         {
           name      = "RABBITMQ_PASSWORD"
           valueFrom = "${aws_secretsmanager_secret.app.arn}:RABBITMQ_PASSWORD::"
+        }, 
+        {
+          name      = "RABBITMQ_QUEUE"
+          valueFrom = "${aws_secretsmanager_secret.app.arn}:RABBITMQ_QUEUE::"
         }
       ]
       logConfiguration = {
