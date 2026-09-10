@@ -42,3 +42,4 @@ variable "rabbitmq_queue" {
   type      = string
   sensitive = true
 }
+

@@ -7,14 +7,16 @@ resource "aws_service_discovery_private_dns_namespace" "main" {
   vpc  = aws_vpc.main.id
 }
 
+
 # =====================================================
 # TASK DEFINITION: API
 # =====================================================
 
-resource "aws_ecs_task_definition" "api" {
-  family                   = "cloud-design-api"
-  network_mode             = "awsvpc"
-  requires_compatibilities = ["EC2"]
+resource "aws_ecs_task_definition" "api-gateway" {
+  family       = "cloud-design-api-gateway"
+  network_mode = "awsvpc"
+
+  requires_compatibilities = ["FARGATE"]
 
   cpu    = "256"
   memory = "512"
@@ -24,18 +26,19 @@ resource "aws_ecs_task_definition" "api" {
 
   container_definitions = jsonencode([
     {
-      name      = "api"
+      name      = "api-gateway"
       image     = "docker.io/oriax11/api-gateway-app:latest"
       essential = true
 
       portMappings = [
         {
-          name          = "api"
+          name          = "api-gateway"
           containerPort = 3000
           hostPort      = 3000
           protocol      = "tcp"
         }
       ]
+
       environment = [
         {
           name  = "INVENTORY_APP_HOST"
@@ -77,17 +80,19 @@ resource "aws_ecs_task_definition" "api" {
   ])
 }
 
+
 # =====================================================
 # TASK DEFINITION: INVENTORY
 # =====================================================
 
 resource "aws_ecs_task_definition" "inventory" {
-  family                   = "cloud-design-inventory"
-  network_mode             = "awsvpc"
-  requires_compatibilities = ["EC2"]
+  family       = "cloud-design-inventory"
+  network_mode = "awsvpc"
+
+  requires_compatibilities = ["FARGATE"]
 
   cpu    = "256"
-  memory = "256"
+  memory = "512"
 
   execution_role_arn = aws_iam_role.ecs_execution.arn
   task_role_arn      = aws_iam_role.ecs_task.arn
@@ -98,6 +103,9 @@ resource "aws_ecs_task_definition" "inventory" {
       image     = "docker.io/oriax11/inventory-app:latest"
       essential = true
 
+      # TEMPORARY DEBUG COMMAND
+      # Remove this when debugging is finished.
+
       portMappings = [
         {
           name          = "inventory-app"
@@ -106,6 +114,7 @@ resource "aws_ecs_task_definition" "inventory" {
           protocol      = "tcp"
         }
       ]
+
       environment = [
         {
           name  = "INVENTORY_APP_PORT"
@@ -127,23 +136,33 @@ resource "aws_ecs_task_definition" "inventory" {
           valueFrom = "${aws_secretsmanager_secret.app.arn}:INVENTORY_DB_NAME::"
         }
       ]
+
+      logConfiguration = {
+        logDriver = "awslogs"
+
+        options = {
+          awslogs-group         = aws_cloudwatch_log_group.inventory.name
+          awslogs-region        = "us-east-1"
+          awslogs-stream-prefix = "inventory"
+        }
+      }
     }
-
-
   ])
 }
+
 
 # =====================================================
 # TASK DEFINITION: BILLING
 # =====================================================
 
 resource "aws_ecs_task_definition" "billing" {
-  family                   = "cloud-design-billing"
-  network_mode             = "awsvpc"
-  requires_compatibilities = ["EC2"]
+  family       = "cloud-design-billing"
+  network_mode = "awsvpc"
+
+  requires_compatibilities = ["FARGATE"]
 
   cpu    = "256"
-  memory = "256"
+  memory = "512"
 
   execution_role_arn = aws_iam_role.ecs_execution.arn
   task_role_arn      = aws_iam_role.ecs_task.arn
@@ -162,6 +181,7 @@ resource "aws_ecs_task_definition" "billing" {
           protocol      = "tcp"
         }
       ]
+
       environment = [
         {
           name  = "RABBITMQ_HOST"
@@ -207,17 +227,19 @@ resource "aws_ecs_task_definition" "billing" {
   ])
 }
 
+
 # =====================================================
 # TASK DEFINITION: RABBITMQ
 # =====================================================
 
 resource "aws_ecs_task_definition" "rabbit_queue" {
-  family                   = "cloud-design-rabbit-queue"
-  network_mode             = "awsvpc"
-  requires_compatibilities = ["EC2"]
+  family       = "cloud-design-rabbit-queue"
+  network_mode = "awsvpc"
+
+  requires_compatibilities = ["FARGATE"]
 
   cpu    = "256"
-  memory = "256"
+  memory = "512"
 
   execution_role_arn = aws_iam_role.ecs_execution.arn
   task_role_arn      = aws_iam_role.ecs_task.arn
@@ -242,6 +264,7 @@ resource "aws_ecs_task_definition" "rabbit_queue" {
           protocol      = "tcp"
         }
       ]
+
       secrets = [
         {
           name      = "RABBITMQ_USER"
@@ -260,17 +283,19 @@ resource "aws_ecs_task_definition" "rabbit_queue" {
   ])
 }
 
+
 # =====================================================
 # TASK DEFINITION: INVENTORY DB
 # =====================================================
 
 resource "aws_ecs_task_definition" "inventory_db" {
-  family                   = "cloud-design-inventory-db"
-  network_mode             = "awsvpc"
-  requires_compatibilities = ["EC2"]
+  family       = "cloud-design-inventory-db"
+  network_mode = "awsvpc"
+
+  requires_compatibilities = ["FARGATE"]
 
   cpu    = "256"
-  memory = "256"
+  memory = "512"
 
   execution_role_arn = aws_iam_role.ecs_execution.arn
   task_role_arn      = aws_iam_role.ecs_task.arn
@@ -289,6 +314,7 @@ resource "aws_ecs_task_definition" "inventory_db" {
           protocol      = "tcp"
         }
       ]
+
       secrets = [
         {
           name      = "DB_USER"
@@ -307,17 +333,19 @@ resource "aws_ecs_task_definition" "inventory_db" {
   ])
 }
 
+
 # =====================================================
 # TASK DEFINITION: BILLING DB
 # =====================================================
 
 resource "aws_ecs_task_definition" "billing_db" {
-  family                   = "cloud-design-billing-db"
-  network_mode             = "awsvpc"
-  requires_compatibilities = ["EC2"]
+  family       = "cloud-design-billing-db"
+  network_mode = "awsvpc"
+
+  requires_compatibilities = ["FARGATE"]
 
   cpu    = "256"
-  memory = "256"
+  memory = "512"
 
   execution_role_arn = aws_iam_role.ecs_execution.arn
   task_role_arn      = aws_iam_role.ecs_task.arn
@@ -336,6 +364,7 @@ resource "aws_ecs_task_definition" "billing_db" {
           protocol      = "tcp"
         }
       ]
+
       secrets = [
         {
           name      = "DB_USER"
@@ -354,46 +383,46 @@ resource "aws_ecs_task_definition" "billing_db" {
   ])
 }
 
+
 # =====================================================
 # SERVICE: API (behind the ALB)
 # =====================================================
 
-resource "aws_ecs_service" "api" {
-  name                   = "cloud-design-api-service"
+resource "aws_ecs_service" "api-gateway" {
+  name                   = "cloud-design-api-gateway-service"
   cluster                = aws_ecs_cluster.main.id
-  task_definition        = aws_ecs_task_definition.api.arn
+  task_definition        = aws_ecs_task_definition.api-gateway.arn
   desired_count          = 1
   enable_execute_command = true
-
+  launch_type            = "FARGATE"
 
   network_configuration {
-    subnets          = [aws_subnet.private_a.id, aws_subnet.private_b.id]
-    security_groups  = [aws_security_group.ecs.id]
+    subnets = [
+      aws_subnet.private_a.id,
+      aws_subnet.private_b.id
+    ]
+
+    # API Gateway gets its own SG
+    security_groups  = [aws_security_group.api_gateway.id]
     assign_public_ip = false
   }
 
   load_balancer {
     target_group_arn = aws_lb_target_group.app.arn
-    container_name   = "api"
+    container_name   = "api-gateway"
     container_port   = 3000
-  }
-
-  capacity_provider_strategy {
-    capacity_provider = aws_ecs_capacity_provider.main.name
-    weight            = 100
-    base              = 1
   }
 
   service_connect_configuration {
     enabled   = true
-    namespace = "cloud-design"
+    namespace = aws_service_discovery_private_dns_namespace.main.arn
 
     service {
-      port_name      = "api"
-      discovery_name = "api"
+      port_name      = "api-gateway"
+      discovery_name = "api-gateway"
 
       client_alias {
-        dns_name = "api"
+        dns_name = "api-gateway"
         port     = 3000
       }
     }
@@ -401,9 +430,12 @@ resource "aws_ecs_service" "api" {
 
   depends_on = [
     aws_lb_listener.http,
-    aws_ecs_cluster_capacity_providers.main
+    aws_ecs_service.rabbit_queue,
+    aws_ecs_service.inventory_app,
+    aws_ecs_service.billing_app
   ]
 }
+
 
 # =====================================================
 # SERVICE: INVENTORY
@@ -416,7 +448,7 @@ resource "aws_ecs_service" "inventory_app" {
   desired_count          = 1
   force_new_deployment   = true
   enable_execute_command = true
-
+  launch_type            = "FARGATE"
 
   network_configuration {
     subnets = [
@@ -424,18 +456,14 @@ resource "aws_ecs_service" "inventory_app" {
       aws_subnet.private_b.id
     ]
 
-    security_groups  = [aws_security_group.ecs.id]
+    # Inventory App gets its own SG
+    security_groups  = [aws_security_group.inventory_app.id]
     assign_public_ip = false
-  }
-
-  capacity_provider_strategy {
-    capacity_provider = aws_ecs_capacity_provider.main.name
-    weight            = 100
   }
 
   service_connect_configuration {
     enabled   = true
-    namespace = "cloud-design"
+    namespace = aws_service_discovery_private_dns_namespace.main.arn
 
     service {
       port_name      = "inventory-app"
@@ -450,9 +478,10 @@ resource "aws_ecs_service" "inventory_app" {
 
   depends_on = [
     aws_service_discovery_private_dns_namespace.main,
-    aws_ecs_cluster_capacity_providers.main
+    aws_ecs_service.inventory_db
   ]
 }
+
 
 # =====================================================
 # SERVICE: BILLING
@@ -465,7 +494,7 @@ resource "aws_ecs_service" "billing_app" {
   desired_count          = 1
   force_new_deployment   = true
   enable_execute_command = true
-
+  launch_type            = "FARGATE"
 
   network_configuration {
     subnets = [
@@ -473,18 +502,14 @@ resource "aws_ecs_service" "billing_app" {
       aws_subnet.private_b.id
     ]
 
-    security_groups  = [aws_security_group.ecs.id]
+    # Billing App gets its own SG
+    security_groups  = [aws_security_group.billing_app.id]
     assign_public_ip = false
-  }
-
-  capacity_provider_strategy {
-    capacity_provider = aws_ecs_capacity_provider.main.name
-    weight            = 100
   }
 
   service_connect_configuration {
     enabled   = true
-    namespace = "cloud-design"
+    namespace = aws_service_discovery_private_dns_namespace.main.arn
 
     service {
       port_name      = "billing-app"
@@ -499,9 +524,11 @@ resource "aws_ecs_service" "billing_app" {
 
   depends_on = [
     aws_service_discovery_private_dns_namespace.main,
-    aws_ecs_cluster_capacity_providers.main
+    aws_ecs_service.billing_db,
+    aws_ecs_service.rabbit_queue
   ]
 }
+
 
 # =====================================================
 # SERVICE: RABBITMQ
@@ -514,7 +541,7 @@ resource "aws_ecs_service" "rabbit_queue" {
   desired_count          = 1
   force_new_deployment   = true
   enable_execute_command = true
-
+  launch_type            = "FARGATE"
 
   network_configuration {
     subnets = [
@@ -522,18 +549,14 @@ resource "aws_ecs_service" "rabbit_queue" {
       aws_subnet.private_b.id
     ]
 
-    security_groups  = [aws_security_group.ecs.id]
+    # RabbitMQ gets its own SG
+    security_groups  = [aws_security_group.rabbitmq.id]
     assign_public_ip = false
-  }
-
-  capacity_provider_strategy {
-    capacity_provider = aws_ecs_capacity_provider.main.name
-    weight            = 100
   }
 
   service_connect_configuration {
     enabled   = true
-    namespace = "cloud-design"
+    namespace = aws_service_discovery_private_dns_namespace.main.arn
 
     service {
       port_name      = "rabbitmq"
@@ -547,10 +570,10 @@ resource "aws_ecs_service" "rabbit_queue" {
   }
 
   depends_on = [
-    aws_service_discovery_private_dns_namespace.main,
-    aws_ecs_cluster_capacity_providers.main
+    aws_service_discovery_private_dns_namespace.main
   ]
 }
+
 
 # =====================================================
 # SERVICE: INVENTORY DB
@@ -562,6 +585,9 @@ resource "aws_ecs_service" "inventory_db" {
   task_definition      = aws_ecs_task_definition.inventory_db.arn
   desired_count        = 1
   force_new_deployment = true
+    enable_execute_command = true
+
+  launch_type          = "FARGATE"
 
   network_configuration {
     subnets = [
@@ -569,18 +595,14 @@ resource "aws_ecs_service" "inventory_db" {
       aws_subnet.private_b.id
     ]
 
-    security_groups  = [aws_security_group.ecs.id]
+    # Inventory DB gets its own SG
+    security_groups  = [aws_security_group.inventory_db.id]
     assign_public_ip = false
-  }
-
-  capacity_provider_strategy {
-    capacity_provider = aws_ecs_capacity_provider.main.name
-    weight            = 100
   }
 
   service_connect_configuration {
     enabled   = true
-    namespace = "cloud-design"
+    namespace = aws_service_discovery_private_dns_namespace.main.arn
 
     service {
       port_name      = "postgres"
@@ -594,10 +616,10 @@ resource "aws_ecs_service" "inventory_db" {
   }
 
   depends_on = [
-    aws_service_discovery_private_dns_namespace.main,
-    aws_ecs_cluster_capacity_providers.main
+    aws_service_discovery_private_dns_namespace.main
   ]
 }
+
 
 # =====================================================
 # SERVICE: BILLING DB
@@ -609,6 +631,9 @@ resource "aws_ecs_service" "billing_db" {
   task_definition      = aws_ecs_task_definition.billing_db.arn
   desired_count        = 1
   force_new_deployment = true
+    enable_execute_command = true
+
+  launch_type          = "FARGATE"
 
   network_configuration {
     subnets = [
@@ -616,18 +641,14 @@ resource "aws_ecs_service" "billing_db" {
       aws_subnet.private_b.id
     ]
 
-    security_groups  = [aws_security_group.ecs.id]
+    # Billing DB gets its own SG
+    security_groups  = [aws_security_group.billing_db.id]
     assign_public_ip = false
-  }
-
-  capacity_provider_strategy {
-    capacity_provider = aws_ecs_capacity_provider.main.name
-    weight            = 100
   }
 
   service_connect_configuration {
     enabled   = true
-    namespace = "cloud-design"
+    namespace = aws_service_discovery_private_dns_namespace.main.arn
 
     service {
       port_name      = "postgres"
@@ -641,7 +662,6 @@ resource "aws_ecs_service" "billing_db" {
   }
 
   depends_on = [
-    aws_service_discovery_private_dns_namespace.main,
-    aws_ecs_cluster_capacity_providers.main
+    aws_service_discovery_private_dns_namespace.main
   ]
 }

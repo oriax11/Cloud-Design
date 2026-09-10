@@ -33,11 +33,7 @@ resource "aws_lb_target_group" "app" {
   target_type = "ip"
   vpc_id      = aws_vpc.main.id
 
-  health_check {
-    protocol = "HTTP"
-    path     = "/"
-    matcher  = "200"
-  }
+
 
   tags = {
     Name = "cloud-design-app-tg"
