@@ -1,0 +1,74 @@
+{
+  "containerDefinitions": [
+    {
+      "name": "billing-db",
+      "image": "docker.io/oriax11/billing-db:latest",
+      "cpu": 0,
+      "portMappings": [
+        {
+          "containerPort": 5432,
+          "hostPort": 5432,
+          "protocol": "tcp",
+          "name": "postgres"
+        }
+      ],
+      "essential": true,
+      "environment": [],
+      "mountPoints": [
+        {
+          "sourceVolume": "billing-db-data",
+          "containerPath": "/var/lib/postgresql/",
+          "readOnly": false
+        }
+      ],
+      "volumesFrom": [],
+      "secrets": [
+        {
+          "name": "DB_USER",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:006631837921:secret:cloud-design/app-secrets-xNELH7:BILLING_DB_USER::"
+        },
+        {
+          "name": "DB_PASSWORD",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:006631837921:secret:cloud-design/app-secrets-xNELH7:BILLING_DB_PASSWORD::"
+        },
+        {
+          "name": "DB_NAME",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:006631837921:secret:cloud-design/app-secrets-xNELH7:BILLING_DB_NAME::"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/cloud-design-billing-db",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "billing-db"
+        }
+      },
+      "systemControls": []
+    }
+  ],
+  "family": "cloud-design-billing-db",
+  "taskRoleArn": "arn:aws:iam::006631837921:role/cloud-design-ecs-task-role",
+  "executionRoleArn": "arn:aws:iam::006631837921:role/cloud-design-ecs-execution-role",
+  "networkMode": "awsvpc",
+  "volumes": [
+    {
+      "name": "billing-db-data",
+      "efsVolumeConfiguration": {
+        "fileSystemId": "fs-0b5974aae4da61cdb",
+        "rootDirectory": "/",
+        "transitEncryption": "ENABLED",
+        "authorizationConfig": {
+          "accessPointId": "fsap-0d6bf341769c17f58",
+          "iam": "ENABLED"
+        }
+      }
+    }
+  ],
+  "placementConstraints": [],
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "256",
+  "memory": "512"
+}

@@ -79,7 +79,7 @@ resource "aws_iam_role_policy" "ecs_execution_secrets" {
       Action = [
         "secretsmanager:GetSecretValue"
       ]
-      Resource = "arn:aws:secretsmanager:us-east-1:975050047403:secret:cloud-design/app-secrets-*"
+      Resource = aws_secretsmanager_secret.app.arn
     }]
   })
 }

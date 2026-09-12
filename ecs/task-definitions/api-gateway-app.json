@@ -1,0 +1,97 @@
+{
+  "containerDefinitions": [
+    {
+      "name": "api-gateway",
+      "image": "docker.io/oriax11/api-gateway-app:latest",
+      "cpu": 0,
+      "portMappings": [
+        {
+          "containerPort": 3000,
+          "hostPort": 3000,
+          "protocol": "tcp",
+          "name": "api-gateway"
+        }
+      ],
+      "essential": true,
+      "command": [
+        "sh",
+        "-c",
+        "echo 'IiIiU3RhcnR1cCBwYXRjaCBmb3IgdGhlIGFwaS1nYXRld2F5IGltYWdlIChvcmlheDExL2FwaS1nYXRld2F5LWFwcCkuCgpBcHBsaWVkIGJ5IHRoZSBFQ1MgdGFzayBkZWZpbml0aW9uIGJlZm9yZSB0aGUgc2VydmVyIHN0YXJ0cy4gSWRlbXBvdGVudC4KCjEuIFN0b3BzIHRoZSBGbGFzayBwcm94eSBmcm9tIGNvcHlpbmcgdXBzdHJlYW0gaG9wLWJ5LWhvcCBoZWFkZXJzIChlLmcuCiAgIENvbm5lY3Rpb24pIGludG8gdGhlIHJlc3BvbnNlLiB3YWl0cmVzcyByZWplY3RzIHRob3NlIHdpdGggYW4KICAgQXNzZXJ0aW9uRXJyb3IsIHdoaWNoIGNhdXNlcyBIVFRQIDUwMCBmb3IgYW55IGNsaWVudCB0aGF0IHNlbmRzCiAgICJDb25uZWN0aW9uOiBjbG9zZSIgKGluY2x1ZGluZyB0aGUgQUxCIGhlYWx0aCBjaGVja2VyKS4KMi4gQWRkcyBhIHNtYWxsIHJvb3Qgcm91dGUgc28gdGhlIEFMQiBoZWFsdGggY2hlY2sgYW5kIGEgYnJvd3NlciBnZXQgYSAyMDAKICAgaW5zdGVhZCBvZiB0aGUgZGVmYXVsdCA0MDQuCjMuIEFkZHMgQ29nbml0byBKV1QgZW5mb3JjZW1lbnQgb24gL2FwaS8qIHVzaW5nIGEgZGVwZW5kZW5jeS1mcmVlIFJTMjU2CiAgIHZlcmlmaWVyICh0aGUgaW1hZ2UgaGFzIG5vIFB5SldUL2NyeXB0b2dyYXBoeSwgYW5kIEFscGluZSBtYWtlcyB0aGVtIGhhcmQKICAgdG8gaW5zdGFsbCkuCgpSZW1vdmUgdGhpcyBvbmNlIHRoZSBpbWFnZSBpcyByZWJ1aWx0IHdpdGggYSBwcm9wZXIgZml4LgoiIiIKCmltcG9ydCBvcwoKUFJPWFkgPSAiL3Vzci9zcmMvYXBwL3Byb3h5LnB5IgpBUFBfSU5JVCA9ICIvdXNyL3NyYy9hcHAvX19pbml0X18ucHkiCkFVVEggPSAiL3Vzci9zcmMvYXBwL2F1dGgucHkiCgpBVVRIX1NPVVJDRSA9ICcnJ2ltcG9ydCBiYXNlNjQKaW1wb3J0IGhhc2hsaWIKaW1wb3J0IGpzb24KaW1wb3J0IG9zCmltcG9ydCB0aW1lCgppbXBvcnQgcmVxdWVzdHMKZnJvbSBmbGFzayBpbXBvcnQganNvbmlmeSwgcmVxdWVzdAoKUkVHSU9OID0gb3MuZ2V0ZW52KCJDT0dOSVRPX1JFR0lPTiIpClBPT0xfSUQgPSBvcy5nZXRlbnYoIkNPR05JVE9fVVNFUl9QT09MX0lEIikKQ0xJRU5UX0lEID0gb3MuZ2V0ZW52KCJDT0dOSVRPX0FQUF9DTElFTlRfSUQiKQoKSVNTVUVSID0gZiJodHRwczovL2NvZ25pdG8taWRwLntSRUdJT059LmFtYXpvbmF3cy5jb20ve1BPT0xfSUR9IgpKV0tTX1VSTCA9IElTU1VFUiArICIvLndlbGwta25vd24vandrcy5qc29uIgoKX2NhY2hlID0geyJrZXlzIjogTm9uZSwgInRzIjogMC4wfQoKCmRlZiBfYjY0ZCh2YWx1ZSk6CiAgICB2YWx1ZSArPSAiPSIgKiAoLWxlbih2YWx1ZSkgJSA0KQogICAgcmV0dXJuIGJhc2U2NC51cmxzYWZlX2I2NGRlY29kZSh2YWx1ZSkKCgpkZWYgX2p3a3MoKToKICAgIGlmIF9jYWNoZVsia2V5cyJdIGlzIE5vbmUgb3IgdGltZS50aW1lKCkgLSBfY2FjaGVbInRzIl0gPiAzNjAwOgogICAgICAgIHJlc3AgPSByZXF1ZXN0cy5nZXQoSldLU19VUkwsIHRpbWVvdXQ9NSkKICAgICAgICByZXNwLnJhaXNlX2Zvcl9zdGF0dXMoKQogICAgICAgIF9jYWNoZVsia2V5cyJdID0gcmVzcC5qc29uKCkuZ2V0KCJrZXlzIiwgW10pCiAgICAgICAgX2NhY2hlWyJ0cyJdID0gdGltZS50aW1lKCkKICAgIHJldHVybiBfY2FjaGVbImtleXMiXQoKCmRlZiBfdmVyaWZ5KHRva2VuKToKICAgIHRyeToKICAgICAgICBoZWFkZXJfYjY0LCBwYXlsb2FkX2I2NCwgc2lnX2I2NCA9IHRva2VuLnNwbGl0KCIuIikKICAgIGV4Y2VwdCBWYWx1ZUVycm9yOgogICAgICAgIHJldHVybiBOb25lCgogICAgdHJ5OgogICAgICAgIGhlYWRlciA9IGpzb24ubG9hZHMoX2I2NGQoaGVhZGVyX2I2NCkpCiAgICBleGNlcHQgRXhjZXB0aW9uOgogICAgICAgIHJldHVybiBOb25lCgogICAgaWYgaGVhZGVyLmdldCgiYWxnIikgIT0gIlJTMjU2IjoKICAgICAgICByZXR1cm4gTm9uZQoKICAgIGtpZCA9IGhlYWRlci5nZXQoImtpZCIpCiAgICBrZXkgPSBuZXh0KChrIGZvciBrIGluIF9qd2tzKCkgaWYgay5nZXQoImtpZCIpID09IGtpZCksIE5vbmUpCiAgICBpZiBub3Qga2V5OgogICAgICAgIHJldHVybiBOb25lCgogICAgbiA9IGludC5mcm9tX2J5dGVzKF9iNjRkKGtleVsibiJdKSwgImJpZyIpCiAgICBlID0gaW50LmZyb21fYnl0ZXMoX2I2NGQoa2V5WyJlIl0pLCAiYmlnIikKICAgIHNpZyA9IGludC5mcm9tX2J5dGVzKF9iNjRkKHNpZ19iNjQpLCAiYmlnIikKCiAgICBrbGVuID0gKG4uYml0X2xlbmd0aCgpICsgNykgLy8gOAogICAgZW0gPSBwb3coc2lnLCBlLCBuKS50b19ieXRlcyhrbGVuLCAiYmlnIikKCiAgICBkaWdlc3QgPSBoYXNobGliLnNoYTI1NigoaGVhZGVyX2I2NCArICIuIiArIHBheWxvYWRfYjY0KS5lbmNvZGUoKSkuZGlnZXN0KCkKICAgIGRpZ2VzdGluZm8gPSBieXRlcy5mcm9taGV4KCIzMDMxMzAwZDA2MDk2MDg2NDgwMTY1MDMwNDAyMDEwNTAwMDQyMCIpICsgZGlnZXN0CiAgICBleHBlY3RlZCA9IGIiXFx4MDBcXHgwMSIgKyBiIlxceGZmIiAqIChrbGVuIC0gbGVuKGRpZ2VzdGluZm8pIC0gMykgKyBiIlxceDAwIiArIGRpZ2VzdGluZm8KICAgIGlmIGVtICE9IGV4cGVjdGVkOgogICAgICAgIHJldHVybiBOb25lCgogICAgdHJ5OgogICAgICAgIHBheWxvYWQgPSBqc29uLmxvYWRzKF9iNjRkKHBheWxvYWRfYjY0KSkKICAgIGV4Y2VwdCBFeGNlcHRpb246CiAgICAgICAgcmV0dXJuIE5vbmUKCiAgICBpZiBwYXlsb2FkLmdldCgiaXNzIikgIT0gSVNTVUVSOgogICAgICAgIHJldHVybiBOb25lCiAgICBpZiBwYXlsb2FkLmdldCgiZXhwIiwgMCkgPCB0aW1lLnRpbWUoKToKICAgICAgICByZXR1cm4gTm9uZQogICAgaWYgcGF5bG9hZC5nZXQoInRva2VuX3VzZSIpIG5vdCBpbiAoImFjY2VzcyIsICJpZCIpOgogICAgICAgIHJldHVybiBOb25lCgogICAgaWYgQ0xJRU5UX0lEOgogICAgICAgIGlmIHBheWxvYWQuZ2V0KCJ0b2tlbl91c2UiKSA9PSAiaWQiIGFuZCBwYXlsb2FkLmdldCgiYXVkIikgIT0gQ0xJRU5UX0lEOgogICAgICAgICAgICByZXR1cm4gTm9uZQogICAgICAgIGlmIHBheWxvYWQuZ2V0KCJ0b2tlbl91c2UiKSA9PSAiYWNjZXNzIiBhbmQgcGF5bG9hZC5nZXQoImNsaWVudF9pZCIpIG5vdCBpbiAoTm9uZSwgQ0xJRU5UX0lEKToKICAgICAgICAgICAgcmV0dXJuIE5vbmUKCiAgICByZXR1cm4gcGF5bG9hZAoKCmRlZiBjaGVjaygpOgogICAgcGF0aCA9IHJlcXVlc3QucGF0aCBvciAiIgogICAgaWYgbm90IHBhdGguc3RhcnRzd2l0aCgiL2FwaS8iKToKICAgICAgICByZXR1cm4gTm9uZQogICAgaWYgcmVxdWVzdC5tZXRob2QgPT0gIk9QVElPTlMiOgogICAgICAgIHJldHVybiBOb25lCgogICAgaGVhZGVyID0gcmVxdWVzdC5oZWFkZXJzLmdldCgiQXV0aG9yaXphdGlvbiIsICIiKQogICAgaWYgbm90IGhlYWRlci5zdGFydHN3aXRoKCJCZWFyZXIgIik6CiAgICAgICAgcmV0dXJuIGpzb25pZnkoZXJyb3I9Im1pc3NpbmcgYmVhcmVyIHRva2VuIiksIDQwMQoKICAgIHRva2VuID0gaGVhZGVyLnNwbGl0KCIgIiwgMSlbMV0uc3RyaXAoKQogICAgaWYgbm90IF92ZXJpZnkodG9rZW4pOgogICAgICAgIHJldHVybiBqc29uaWZ5KGVycm9yPSJpbnZhbGlkIG9yIGV4cGlyZWQgdG9rZW4iKSwgNDAxCgogICAgcmV0dXJuIE5vbmUKJycnCgpXUkFQUEVSID0gJycnCgojIC0tLSBDb2duaXRvIGF1dGggd3JhcHBlciAoYWRkZWQgYnkgZWNzL2dhdGV3YXktcGF0Y2gucHkpIC0tLQpmcm9tIGFwcCBpbXBvcnQgYXV0aCBhcyBfYXV0aCAgIyBub3FhOiBFNDAyCgpfb3JpZ19jcmVhdGVfYXBwID0gY3JlYXRlX2FwcAoKCmRlZiBjcmVhdGVfYXBwKCphcmdzLCAqKmt3YXJncyk6ICAjIG5vcWE6IEY4MTEKICAgIGFwcGxpY2F0aW9uID0gX29yaWdfY3JlYXRlX2FwcCgqYXJncywgKiprd2FyZ3MpCiAgICBhcHBsaWNhdGlvbi5iZWZvcmVfcmVxdWVzdChfYXV0aC5jaGVjaykKICAgIHJldHVybiBhcHBsaWNhdGlvbgonJycKCgpkZWYgcGF0Y2hfcHJveHkoKToKICAgIHdpdGggb3BlbihQUk9YWSkgYXMgZjoKICAgICAgICBzcmMgPSBmLnJlYWQoKQogICAgZml4ZWQgPSBzcmMucmVwbGFjZSgicmVzcG9uc2UuaGVhZGVycy5pdGVtcygpIiwgIltdIikKICAgIGlmIGZpeGVkICE9IHNyYzoKICAgICAgICB3aXRoIG9wZW4oUFJPWFksICJ3IikgYXMgZjoKICAgICAgICAgICAgZi53cml0ZShmaXhlZCkKCgpkZWYgcGF0Y2hfcm9vdF9yb3V0ZSgpOgogICAgd2l0aCBvcGVuKEFQUF9JTklUKSBhcyBmOgogICAgICAgIHNyYyA9IGYucmVhZCgpCiAgICBpZiAiX3Jvb3QiIGluIHNyYzoKICAgICAgICByZXR1cm4KICAgIG1hcmtlciA9ICIgICAgcmV0dXJuIGFwcCIKICAgIHJvdXRlID0gKAogICAgICAgICIgICAgQGFwcC5yb3V0ZShcIi9cIilcbiIKICAgICAgICAiICAgIGRlZiBfcm9vdCgpOlxuIgogICAgICAgICIgICAgICAgIHJldHVybiBqc29uaWZ5KHN0YXR1cz1cIm9rXCIsIHNlcnZpY2U9XCJhcGktZ2F0ZXdheVwiKVxuIgogICAgICAgICJcbiIKICAgICAgICAiICAgIHJldHVybiBhcHAiCiAgICApCiAgICBzcmMgPSBzcmMucmVwbGFjZShtYXJrZXIsIHJvdXRlLCAxKQogICAgd2l0aCBvcGVuKEFQUF9JTklULCAidyIpIGFzIGY6CiAgICAgICAgZi53cml0ZShzcmMpCgoKZGVmIHBhdGNoX2F1dGgoKToKICAgIHdpdGggb3BlbihBVVRILCAidyIpIGFzIGY6CiAgICAgICAgZi53cml0ZShBVVRIX1NPVVJDRSkKCiAgICB3aXRoIG9wZW4oQVBQX0lOSVQpIGFzIGY6CiAgICAgICAgc3JjID0gZi5yZWFkKCkKICAgIGlmICJfb3JpZ19jcmVhdGVfYXBwIiBub3QgaW4gc3JjOgogICAgICAgIHNyYyA9IHNyYyArIFdSQVBQRVIKICAgICAgICB3aXRoIG9wZW4oQVBQX0lOSVQsICJ3IikgYXMgZjoKICAgICAgICAgICAgZi53cml0ZShzcmMpCgoKcGF0Y2hfcHJveHkoKQpwYXRjaF9yb290X3JvdXRlKCkKcGF0Y2hfYXV0aCgpCg==' | base64 -d > /tmp/gateway-patch.py && python /tmp/gateway-patch.py && exec python server.py"
+      ],
+      "environment": [
+        {
+          "name": "PYTHONUNBUFFERED",
+          "value": "1"
+        },
+        {
+          "name": "RABBITMQ_PORT",
+          "value": "5672"
+        },
+        {
+          "name": "INVENTORY_APP_PORT",
+          "value": "8080"
+        },
+        {
+          "name": "APIGATEWAY_PORT",
+          "value": "3000"
+        },
+        {
+          "name": "INVENTORY_APP_HOST",
+          "value": "inventory-app"
+        },
+        {
+          "name": "COGNITO_REGION",
+          "value": "us-east-1"
+        },
+        {
+          "name": "RABBITMQ_HOST",
+          "value": "rabbit-queue"
+        },
+        {
+          "name": "COGNITO_APP_CLIENT_ID",
+          "value": "1v7flqle34h92226afobf7dgl9"
+        },
+        {
+          "name": "COGNITO_USER_POOL_ID",
+          "value": "us-east-1_GcVf3Cz38"
+        }
+      ],
+      "mountPoints": [],
+      "volumesFrom": [],
+      "secrets": [
+        {
+          "name": "RABBITMQ_USER",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:006631837921:secret:cloud-design/app-secrets-xNELH7:RABBITMQ_USER::"
+        },
+        {
+          "name": "RABBITMQ_PASSWORD",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:006631837921:secret:cloud-design/app-secrets-xNELH7:RABBITMQ_PASSWORD::"
+        },
+        {
+          "name": "RABBITMQ_QUEUE",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:006631837921:secret:cloud-design/app-secrets-xNELH7:RABBITMQ_QUEUE::"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/cloud-design-api-gateway",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "api-gateway"
+        }
+      },
+      "systemControls": []
+    }
+  ],
+  "family": "cloud-design-api-gateway",
+  "taskRoleArn": "arn:aws:iam::006631837921:role/cloud-design-ecs-task-role",
+  "executionRoleArn": "arn:aws:iam::006631837921:role/cloud-design-ecs-execution-role",
+  "networkMode": "awsvpc",
+  "volumes": [],
+  "placementConstraints": [],
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "256",
+  "memory": "512"
+}

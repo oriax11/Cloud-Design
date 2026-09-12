@@ -6,12 +6,20 @@
 resource "aws_security_group" "alb" {
   name        = "cloud-design-alb-sg"
   description = "Allow HTTP traffic"
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = var.vpc_id
 
   ingress {
     description = "HTTP from internet"
     from_port   = 80
     to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "HTTPS from internet"
+    from_port   = 443
+    to_port     = 443
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -41,7 +49,7 @@ resource "aws_security_group" "alb" {
 resource "aws_security_group" "api_gateway" {
   name        = "cloud-design-api-gateway-sg"
   description = "Security group for API Gateway"
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = var.vpc_id
 
   # Only ALB can access API Gateway
   ingress {
@@ -76,7 +84,7 @@ resource "aws_security_group" "api_gateway" {
 resource "aws_security_group" "inventory_app" {
   name        = "cloud-design-inventory-app-sg"
   description = "Security group for Inventory App"
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = var.vpc_id
 
   # Only API Gateway can access Inventory App
   ingress {
@@ -110,7 +118,7 @@ resource "aws_security_group" "inventory_app" {
 resource "aws_security_group" "inventory_db" {
   name        = "cloud-design-inventory-db-sg"
   description = "Security group for Inventory PostgreSQL"
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = var.vpc_id
 
   # ONLY Inventory App can access PostgreSQL
   ingress {
@@ -144,7 +152,7 @@ resource "aws_security_group" "inventory_db" {
 resource "aws_security_group" "rabbitmq" {
   name        = "cloud-design-rabbitmq-sg"
   description = "Security group for RabbitMQ"
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = var.vpc_id
 
   # Only API Gateway can access RabbitMQ
   ingress {
@@ -179,7 +187,7 @@ resource "aws_security_group" "rabbitmq" {
 resource "aws_security_group" "billing_app" {
   name        = "cloud-design-billing-app-sg"
   description = "Security group for Billing App"
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = var.vpc_id
 
   # # RabbitMQ can access Billing App
   # ingress {
@@ -213,7 +221,7 @@ resource "aws_security_group" "billing_app" {
 resource "aws_security_group" "billing_db" {
   name        = "cloud-design-billing-db-sg"
   description = "Security group for Billing PostgreSQL"
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = var.vpc_id
 
   # ONLY Billing App can access PostgreSQL
   ingress {

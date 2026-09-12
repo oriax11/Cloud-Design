@@ -1,0 +1,64 @@
+{
+  "containerDefinitions": [
+    {
+      "name": "inventory-app",
+      "image": "docker.io/oriax11/inventory-app:latest",
+      "cpu": 0,
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "hostPort": 8080,
+          "protocol": "tcp",
+          "name": "inventory-app"
+        }
+      ],
+      "essential": true,
+      "environment": [
+        {
+          "name": "INVENTORY_APP_PORT",
+          "value": "8080"
+        },
+        {
+          "name": "PYTHONUNBUFFERED",
+          "value": "1"
+        }
+      ],
+      "mountPoints": [],
+      "volumesFrom": [],
+      "secrets": [
+        {
+          "name": "INVENTORY_DB_USER",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:006631837921:secret:cloud-design/app-secrets-xNELH7:INVENTORY_DB_USER::"
+        },
+        {
+          "name": "INVENTORY_DB_PASSWORD",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:006631837921:secret:cloud-design/app-secrets-xNELH7:INVENTORY_DB_PASSWORD::"
+        },
+        {
+          "name": "INVENTORY_DB_NAME",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:006631837921:secret:cloud-design/app-secrets-xNELH7:INVENTORY_DB_NAME::"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/cloud-design-inventory",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "inventory"
+        }
+      },
+      "systemControls": []
+    }
+  ],
+  "family": "cloud-design-inventory",
+  "taskRoleArn": "arn:aws:iam::006631837921:role/cloud-design-ecs-task-role",
+  "executionRoleArn": "arn:aws:iam::006631837921:role/cloud-design-ecs-execution-role",
+  "networkMode": "awsvpc",
+  "volumes": [],
+  "placementConstraints": [],
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "256",
+  "memory": "512"
+}

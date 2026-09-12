@@ -1,0 +1,84 @@
+{
+  "containerDefinitions": [
+    {
+      "name": "billing-app",
+      "image": "docker.io/oriax11/billing-app:latest",
+      "cpu": 0,
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "hostPort": 8080,
+          "protocol": "tcp",
+          "name": "billing-app"
+        }
+      ],
+      "essential": true,
+      "environment": [
+        {
+          "name": "RABBITMQ_HOST",
+          "value": "rabbit-queue"
+        },
+        {
+          "name": "PYTHONUNBUFFERED",
+          "value": "1"
+        },
+        {
+          "name": "BILLING_APP_PORT",
+          "value": "8080"
+        },
+        {
+          "name": "RABBITMQ_PORT",
+          "value": "5672"
+        }
+      ],
+      "mountPoints": [],
+      "volumesFrom": [],
+      "secrets": [
+        {
+          "name": "BILLING_DB_USER",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:006631837921:secret:cloud-design/app-secrets-xNELH7:BILLING_DB_USER::"
+        },
+        {
+          "name": "BILLING_DB_PASSWORD",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:006631837921:secret:cloud-design/app-secrets-xNELH7:BILLING_DB_PASSWORD::"
+        },
+        {
+          "name": "BILLING_DB_NAME",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:006631837921:secret:cloud-design/app-secrets-xNELH7:BILLING_DB_NAME::"
+        },
+        {
+          "name": "RABBITMQ_USER",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:006631837921:secret:cloud-design/app-secrets-xNELH7:RABBITMQ_USER::"
+        },
+        {
+          "name": "RABBITMQ_PASSWORD",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:006631837921:secret:cloud-design/app-secrets-xNELH7:RABBITMQ_PASSWORD::"
+        },
+        {
+          "name": "RABBITMQ_QUEUE",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:006631837921:secret:cloud-design/app-secrets-xNELH7:RABBITMQ_QUEUE::"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/cloud-design-billing",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "billing"
+        }
+      },
+      "systemControls": []
+    }
+  ],
+  "family": "cloud-design-billing",
+  "taskRoleArn": "arn:aws:iam::006631837921:role/cloud-design-ecs-task-role",
+  "executionRoleArn": "arn:aws:iam::006631837921:role/cloud-design-ecs-execution-role",
+  "networkMode": "awsvpc",
+  "volumes": [],
+  "placementConstraints": [],
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "256",
+  "memory": "512"
+}

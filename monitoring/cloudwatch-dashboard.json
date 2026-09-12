@@ -1,0 +1,234 @@
+{
+  "widgets": [
+    {
+      "height": 4,
+      "properties": {
+        "metrics": [
+          [
+            "AWS/ECS",
+            "CPUUtilization",
+            "ClusterName",
+            "cloud-design-cluster",
+            "ServiceName",
+            "cloud-design-api-gateway-service"
+          ]
+        ],
+        "period": 300,
+        "region": "us-east-1",
+        "singleValueFullPrecision": false,
+        "stat": "Average",
+        "title": "API Gateway CPU",
+        "view": "singleValue"
+      },
+      "type": "metric",
+      "width": 6
+    },
+    {
+      "height": 4,
+      "properties": {
+        "metrics": [
+          [
+            "AWS/ECS",
+            "MemoryUtilization",
+            "ClusterName",
+            "cloud-design-cluster",
+            "ServiceName",
+            "cloud-design-api-gateway-service"
+          ]
+        ],
+        "period": 300,
+        "region": "us-east-1",
+        "singleValueFullPrecision": false,
+        "stat": "Average",
+        "title": "API Gateway Memory",
+        "view": "singleValue"
+      },
+      "type": "metric",
+      "width": 6
+    },
+    {
+      "height": 4,
+      "properties": {
+        "metrics": [
+          [
+            "AWS/ECS",
+            "CPUUtilization",
+            "ClusterName",
+            "cloud-design-cluster",
+            "ServiceName",
+            "cloud-design-inventory-service"
+          ]
+        ],
+        "period": 300,
+        "region": "us-east-1",
+        "singleValueFullPrecision": false,
+        "stat": "Average",
+        "title": "Inventory CPU",
+        "view": "singleValue"
+      },
+      "type": "metric",
+      "width": 6
+    },
+    {
+      "height": 4,
+      "properties": {
+        "metrics": [
+          [
+            "AWS/ECS",
+            "MemoryUtilization",
+            "ClusterName",
+            "cloud-design-cluster",
+            "ServiceName",
+            "cloud-design-inventory-service"
+          ]
+        ],
+        "period": 300,
+        "region": "us-east-1",
+        "singleValueFullPrecision": false,
+        "stat": "Average",
+        "title": "Inventory Memory",
+        "view": "singleValue"
+      },
+      "type": "metric",
+      "width": 6
+    },
+    {
+      "height": 4,
+      "properties": {
+        "metrics": [
+          [
+            "AWS/ECS",
+            "CPUUtilization",
+            "ClusterName",
+            "cloud-design-cluster",
+            "ServiceName",
+            "cloud-design-billing-service"
+          ]
+        ],
+        "period": 300,
+        "region": "us-east-1",
+        "singleValueFullPrecision": false,
+        "stat": "Average",
+        "title": "Billing CPU",
+        "view": "singleValue"
+      },
+      "type": "metric",
+      "width": 6
+    },
+    {
+      "height": 4,
+      "properties": {
+        "metrics": [
+          [
+            "AWS/ECS",
+            "MemoryUtilization",
+            "ClusterName",
+            "cloud-design-cluster",
+            "ServiceName",
+            "cloud-design-billing-service"
+          ]
+        ],
+        "period": 300,
+        "region": "us-east-1",
+        "singleValueFullPrecision": false,
+        "stat": "Average",
+        "title": "Billing Memory",
+        "view": "singleValue"
+      },
+      "type": "metric",
+      "width": 6
+    },
+    {
+      "height": 4,
+      "properties": {
+        "metrics": [
+          [
+            "AWS/ApplicationELB",
+            "RequestCount",
+            "LoadBalancer",
+            "app/cloud-design-alb/0351b1a126525f2a"
+          ]
+        ],
+        "period": 300,
+        "region": "us-east-1",
+        "singleValueFullPrecision": false,
+        "stat": "Sum",
+        "title": "ALB Requests",
+        "view": "singleValue"
+      },
+      "type": "metric",
+      "width": 6
+    },
+    {
+      "height": 4,
+      "properties": {
+        "metrics": [
+          [
+            "AWS/ApplicationELB",
+            "TargetResponseTime",
+            "LoadBalancer",
+            "app/cloud-design-alb/0351b1a126525f2a"
+          ]
+        ],
+        "period": 300,
+        "region": "us-east-1",
+        "singleValueFullPrecision": false,
+        "stat": "Average",
+        "title": "ALB Target Response Time (s)",
+        "view": "singleValue"
+      },
+      "type": "metric",
+      "width": 6
+    },
+    {
+      "height": 4,
+      "properties": {
+        "metrics": [
+          [
+            "AWS/ApplicationELB",
+            "HTTPCode_Target_5XX_Count",
+            "LoadBalancer",
+            "app/cloud-design-alb/0351b1a126525f2a"
+          ]
+        ],
+        "period": 300,
+        "region": "us-east-1",
+        "singleValueFullPrecision": false,
+        "stat": "Sum",
+        "title": "ALB 5XX Responses",
+        "view": "singleValue"
+      },
+      "type": "metric",
+      "width": 6
+    },
+    {
+      "height": 4,
+      "properties": {
+        "metrics": [
+          [
+            "AWS/ECS",
+            "RunningTaskCount",
+            "ClusterName",
+            "cloud-design-cluster",
+            "ServiceName",
+            "cloud-design-api-gateway-service"
+          ],
+          [
+            "...",
+            "cloud-design-inventory-service"
+          ],
+          [
+            "...",
+            "cloud-design-billing-service"
+          ]
+        ],
+        "period": 300,
+        "region": "us-east-1",
+        "stat": "Average",
+        "title": "ECS Running Tasks"
+      },
+      "type": "metric",
+      "width": 12
+    }
+  ]
+}

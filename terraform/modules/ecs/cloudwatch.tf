@@ -241,7 +241,7 @@ resource "aws_cloudwatch_dashboard" "main" {
               "AWS/ApplicationELB",
               "RequestCount",
               "LoadBalancer",
-              aws_lb.main.arn_suffix
+              var.lb_arn_suffix
             ]
           ]
 
@@ -255,6 +255,88 @@ resource "aws_cloudwatch_dashboard" "main" {
         }
       },
 
+      # =====================================================
+      # ALB TARGET RESPONSE TIME
+      # =====================================================
+      {
+        type   = "metric"
+        width  = 6
+        height = 4
+
+        properties = {
+          title = "ALB Target Response Time (s)"
+
+          metrics = [
+            [
+              "AWS/ApplicationELB",
+              "TargetResponseTime",
+              "LoadBalancer",
+              var.lb_arn_suffix
+            ]
+          ]
+
+          period = 300
+          stat   = "Average"
+          region = "us-east-1"
+
+          view = "singleValue"
+
+          singleValueFullPrecision = false
+        }
+      },
+
+      # =====================================================
+      # ALB 5XX
+      # =====================================================
+      {
+        type   = "metric"
+        width  = 6
+        height = 4
+
+        properties = {
+          title = "ALB 5XX Responses"
+
+          metrics = [
+            [
+              "AWS/ApplicationELB",
+              "HTTPCode_Target_5XX_Count",
+              "LoadBalancer",
+              var.lb_arn_suffix
+            ]
+          ]
+
+          period = 300
+          stat   = "Sum"
+          region = "us-east-1"
+
+          view = "singleValue"
+
+          singleValueFullPrecision = false
+        }
+      },
+
+      # =====================================================
+      # RUNNING TASKS PER SERVICE
+      # =====================================================
+      {
+        type   = "metric"
+        width  = 12
+        height = 4
+
+        properties = {
+          title = "ECS Running Tasks"
+
+          metrics = [
+            ["AWS/ECS", "RunningTaskCount", "ClusterName", aws_ecs_cluster.main.name, "ServiceName", aws_ecs_service.api-gateway.name],
+            ["...", aws_ecs_service.inventory_app.name],
+            ["...", aws_ecs_service.billing_app.name],
+          ]
+
+          period = 300
+          stat   = "Average"
+          region = "us-east-1"
+        }
+      },
 
     ]
   })

@@ -4,7 +4,7 @@
 
 resource "aws_service_discovery_private_dns_namespace" "main" {
   name = "cloud-design"
-  vpc  = aws_vpc.main.id
+  vpc  = var.vpc_id
 }
 
 
@@ -29,6 +29,17 @@ resource "aws_ecs_task_definition" "api-gateway" {
       name      = "api-gateway"
       image     = "docker.io/oriax11/api-gateway-app:latest"
       essential = true
+
+      # The image's Flask proxy returns upstream hop-by-hop headers (e.g.
+      # Connection), which waitress rejects with an AssertionError, causing 500s
+      # for any client that sends "Connection: close" (including ALB health
+      # checks). ecs/gateway-patch.py fixes that and adds a root route, applied
+      # at startup until the image is rebuilt with a proper fix.
+      command = [
+        "sh",
+        "-c",
+        "echo '${base64encode(file("${path.module}/gateway-patch.py"))}' | base64 -d > /tmp/gateway-patch.py && python /tmp/gateway-patch.py && exec python server.py"
+      ]
 
       portMappings = [
         {
@@ -59,6 +70,22 @@ resource "aws_ecs_task_definition" "api-gateway" {
         {
           name  = "APIGATEWAY_PORT"
           value = "3000"
+        },
+        {
+          name  = "PYTHONUNBUFFERED"
+          value = "1"
+        },
+        {
+          name  = "COGNITO_REGION"
+          value = "us-east-1"
+        },
+        {
+          name  = "COGNITO_USER_POOL_ID"
+          value = aws_cognito_user_pool.main.id
+        },
+        {
+          name  = "COGNITO_APP_CLIENT_ID"
+          value = aws_cognito_user_pool_client.app.id
         }
       ]
 
@@ -70,7 +97,7 @@ resource "aws_ecs_task_definition" "api-gateway" {
         {
           name      = "RABBITMQ_PASSWORD"
           valueFrom = "${aws_secretsmanager_secret.app.arn}:RABBITMQ_PASSWORD::"
-        }, 
+        },
         {
           name      = "RABBITMQ_QUEUE"
           valueFrom = "${aws_secretsmanager_secret.app.arn}:RABBITMQ_QUEUE::"
@@ -128,6 +155,10 @@ resource "aws_ecs_task_definition" "inventory" {
         {
           name  = "INVENTORY_APP_PORT"
           value = "8080"
+        },
+        {
+          name  = "PYTHONUNBUFFERED"
+          value = "1"
         }
       ]
 
@@ -203,6 +234,10 @@ resource "aws_ecs_task_definition" "billing" {
         {
           name  = "BILLING_APP_PORT"
           value = "8080"
+        },
+        {
+          name  = "PYTHONUNBUFFERED"
+          value = "1"
         }
       ]
 
@@ -331,11 +366,11 @@ resource "aws_ecs_task_definition" "inventory_db" {
     name = "inventory-db-data"
 
     efs_volume_configuration {
-      file_system_id     = aws_efs_file_system.inventory_db.id
+      file_system_id     = var.inventory_db_file_system_id
       transit_encryption = "ENABLED"
 
       authorization_config {
-        access_point_id = aws_efs_access_point.inventory_db.id
+        access_point_id = var.inventory_db_access_point_id
         iam             = "ENABLED"
       }
     }
@@ -412,11 +447,11 @@ resource "aws_ecs_task_definition" "billing_db" {
     name = "billing-db-data"
 
     efs_volume_configuration {
-      file_system_id     = aws_efs_file_system.billing_db.id
+      file_system_id     = var.billing_db_file_system_id
       transit_encryption = "ENABLED"
 
       authorization_config {
-        access_point_id = aws_efs_access_point.billing_db.id
+        access_point_id = var.billing_db_access_point_id
         iam             = "ENABLED"
       }
     }
@@ -481,23 +516,24 @@ resource "aws_ecs_service" "api-gateway" {
   name                   = "cloud-design-api-gateway-service"
   cluster                = aws_ecs_cluster.main.id
   task_definition        = aws_ecs_task_definition.api-gateway.arn
-  desired_count          = 1
+  desired_count          = 2
   enable_execute_command = true
   launch_type            = "FARGATE"
 
+  lifecycle {
+    ignore_changes = [desired_count]
+  }
+
   network_configuration {
-    subnets = [
-      aws_subnet.private_a.id,
-      aws_subnet.private_b.id
-    ]
+    subnets = var.private_subnet_ids
 
     # API Gateway gets its own SG
-    security_groups  = [aws_security_group.api_gateway.id]
+    security_groups  = [var.api_gateway_sg_id]
     assign_public_ip = false
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.app.arn
+    target_group_arn = var.target_group_arn
     container_name   = "api-gateway"
     container_port   = 3000
   }
@@ -518,7 +554,6 @@ resource "aws_ecs_service" "api-gateway" {
   }
 
   depends_on = [
-    aws_lb_listener.http,
     aws_ecs_service.rabbit_queue,
     aws_ecs_service.inventory_app,
     aws_ecs_service.billing_app
@@ -534,19 +569,20 @@ resource "aws_ecs_service" "inventory_app" {
   name                   = "cloud-design-inventory-service"
   cluster                = aws_ecs_cluster.main.id
   task_definition        = aws_ecs_task_definition.inventory.arn
-  desired_count          = 1
+  desired_count          = 2
   force_new_deployment   = true
   enable_execute_command = true
   launch_type            = "FARGATE"
 
+  lifecycle {
+    ignore_changes = [desired_count]
+  }
+
   network_configuration {
-    subnets = [
-      aws_subnet.private_a.id,
-      aws_subnet.private_b.id
-    ]
+    subnets = var.private_subnet_ids
 
     # Inventory App gets its own SG
-    security_groups  = [aws_security_group.inventory_app.id]
+    security_groups  = [var.inventory_app_sg_id]
     assign_public_ip = false
   }
 
@@ -580,19 +616,20 @@ resource "aws_ecs_service" "billing_app" {
   name                   = "cloud-design-billing-service"
   cluster                = aws_ecs_cluster.main.id
   task_definition        = aws_ecs_task_definition.billing.arn
-  desired_count          = 1
+  desired_count          = 2
   force_new_deployment   = true
   enable_execute_command = true
   launch_type            = "FARGATE"
 
+  lifecycle {
+    ignore_changes = [desired_count]
+  }
+
   network_configuration {
-    subnets = [
-      aws_subnet.private_a.id,
-      aws_subnet.private_b.id
-    ]
+    subnets = var.private_subnet_ids
 
     # Billing App gets its own SG
-    security_groups  = [aws_security_group.billing_app.id]
+    security_groups  = [var.billing_app_sg_id]
     assign_public_ip = false
   }
 
@@ -633,13 +670,10 @@ resource "aws_ecs_service" "rabbit_queue" {
   launch_type            = "FARGATE"
 
   network_configuration {
-    subnets = [
-      aws_subnet.private_a.id,
-      aws_subnet.private_b.id
-    ]
+    subnets = var.private_subnet_ids
 
     # RabbitMQ gets its own SG
-    security_groups  = [aws_security_group.rabbitmq.id]
+    security_groups  = [var.rabbitmq_sg_id]
     assign_public_ip = false
   }
 
@@ -679,13 +713,10 @@ resource "aws_ecs_service" "inventory_db" {
   launch_type = "FARGATE"
 
   network_configuration {
-    subnets = [
-      aws_subnet.private_a.id,
-      aws_subnet.private_b.id
-    ]
+    subnets = var.private_subnet_ids
 
     # Inventory DB gets its own SG
-    security_groups  = [aws_security_group.inventory_db.id]
+    security_groups  = [var.inventory_db_sg_id]
     assign_public_ip = false
   }
 
@@ -706,8 +737,6 @@ resource "aws_ecs_service" "inventory_db" {
 
   depends_on = [
     aws_service_discovery_private_dns_namespace.main,
-    aws_efs_mount_target.inventory_db_a,
-    aws_efs_mount_target.inventory_db_b
   ]
 }
 
@@ -727,13 +756,10 @@ resource "aws_ecs_service" "billing_db" {
   launch_type = "FARGATE"
 
   network_configuration {
-    subnets = [
-      aws_subnet.private_a.id,
-      aws_subnet.private_b.id
-    ]
+    subnets = var.private_subnet_ids
 
     # Billing DB gets its own SG
-    security_groups  = [aws_security_group.billing_db.id]
+    security_groups  = [var.billing_db_sg_id]
     assign_public_ip = false
   }
 
@@ -754,7 +780,5 @@ resource "aws_ecs_service" "billing_db" {
 
   depends_on = [
     aws_service_discovery_private_dns_namespace.main,
-    aws_efs_mount_target.inventory_db_a,
-    aws_efs_mount_target.inventory_db_b
   ]
 }

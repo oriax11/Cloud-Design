@@ -1,0 +1,14 @@
+# Copy to terraform.tfvars and fill in real values.
+# terraform.tfvars is gitignored and must never be committed.
+
+inventory_db_user     = "inventory_user"
+inventory_db_password = "change-me"
+inventory_db_name     = "inventory"
+
+billing_db_user     = "billing_user"
+billing_db_password = "change-me"
+billing_db_name     = "billing"
+
+rabbitmq_user     = "rabbit_user"
+rabbitmq_password = "change-me"
+rabbitmq_queue    = "billing_queue"

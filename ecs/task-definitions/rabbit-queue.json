@@ -1,0 +1,61 @@
+{
+  "containerDefinitions": [
+    {
+      "name": "rabbit-queue",
+      "image": "docker.io/oriax11/rabbit-queue:latest",
+      "cpu": 0,
+      "portMappings": [
+        {
+          "containerPort": 5672,
+          "hostPort": 5672,
+          "protocol": "tcp",
+          "name": "rabbitmq"
+        },
+        {
+          "containerPort": 15672,
+          "hostPort": 15672,
+          "protocol": "tcp",
+          "name": "rabbitmq-management"
+        }
+      ],
+      "essential": true,
+      "environment": [],
+      "mountPoints": [],
+      "volumesFrom": [],
+      "secrets": [
+        {
+          "name": "RABBITMQ_USER",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:006631837921:secret:cloud-design/app-secrets-xNELH7:RABBITMQ_USER::"
+        },
+        {
+          "name": "RABBITMQ_PASSWORD",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:006631837921:secret:cloud-design/app-secrets-xNELH7:RABBITMQ_PASSWORD::"
+        },
+        {
+          "name": "RABBITMQ_QUEUE",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:006631837921:secret:cloud-design/app-secrets-xNELH7:RABBITMQ_QUEUE::"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/cloud-design-rabbitmq",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "rabbitmq"
+        }
+      },
+      "systemControls": []
+    }
+  ],
+  "family": "cloud-design-rabbit-queue",
+  "taskRoleArn": "arn:aws:iam::006631837921:role/cloud-design-ecs-task-role",
+  "executionRoleArn": "arn:aws:iam::006631837921:role/cloud-design-ecs-execution-role",
+  "networkMode": "awsvpc",
+  "volumes": [],
+  "placementConstraints": [],
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "256",
+  "memory": "512"
+}

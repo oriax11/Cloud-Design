@@ -16,13 +16,13 @@ resource "aws_efs_file_system" "inventory_db" {
 
 resource "aws_efs_mount_target" "inventory_db_a" {
   file_system_id  = aws_efs_file_system.inventory_db.id
-  subnet_id       = aws_subnet.private_a.id
+  subnet_id       = var.private_subnet_a_id
   security_groups = [aws_security_group.inventory_db_efs.id]
 }
 
 resource "aws_efs_mount_target" "inventory_db_b" {
   file_system_id  = aws_efs_file_system.inventory_db.id
-  subnet_id       = aws_subnet.private_b.id
+  subnet_id       = var.private_subnet_b_id
   security_groups = [aws_security_group.inventory_db_efs.id]
 }
 
@@ -68,13 +68,13 @@ resource "aws_efs_file_system" "billing_db" {
 
 resource "aws_efs_mount_target" "billing_db_a" {
   file_system_id  = aws_efs_file_system.billing_db.id
-  subnet_id       = aws_subnet.private_a.id
+  subnet_id       = var.private_subnet_a_id
   security_groups = [aws_security_group.billing_db_efs.id]
 }
 
 resource "aws_efs_mount_target" "billing_db_b" {
   file_system_id  = aws_efs_file_system.billing_db.id
-  subnet_id       = aws_subnet.private_b.id
+  subnet_id       = var.private_subnet_b_id
   security_groups = [aws_security_group.billing_db_efs.id]
 }
 
@@ -110,14 +110,14 @@ resource "aws_efs_access_point" "billing_db" {
 resource "aws_security_group" "inventory_db_efs" {
   name        = "cloud-design-inventory-db-efs"
   description = "Allow NFS from inventory-db ECS tasks"
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = var.vpc_id
 
   ingress {
     description     = "NFS from inventory-db tasks"
     from_port       = 2049
     to_port         = 2049
     protocol        = "tcp"
-    security_groups = [aws_security_group.inventory_db.id]
+    security_groups = [var.inventory_db_sg_id]
   }
 
   egress {
@@ -135,14 +135,14 @@ resource "aws_security_group" "inventory_db_efs" {
 resource "aws_security_group" "billing_db_efs" {
   name        = "cloud-design-billing-db-efs"
   description = "Allow NFS from billing-db ECS tasks"
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = var.vpc_id
 
   ingress {
     description     = "NFS from billing-db tasks"
     from_port       = 2049
     to_port         = 2049
     protocol        = "tcp"
-    security_groups = [aws_security_group.billing_db.id]
+    security_groups = [var.billing_db_sg_id]
   }
 
   egress {
@@ -159,43 +159,3 @@ resource "aws_security_group" "billing_db_efs" {
 
 
 # =====================================================
-# IAM: allow the ECS task role to mount/read/write EFS
-# Attach this policy to aws_iam_role.ecs_task
-# =====================================================
-
-resource "aws_iam_policy" "efs_access" {
-  name        = "cloud-design-efs-access"
-  description = "Allow ECS tasks to mount and access EFS access points for the DB volumes"
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid    = "AllowEFSClientMountWrite"
-        Effect = "Allow"
-        Action = [
-          "elasticfilesystem:ClientMount",
-          "elasticfilesystem:ClientWrite",
-          "elasticfilesystem:ClientRootAccess"
-        ]
-        Resource = [
-          aws_efs_file_system.inventory_db.arn,
-          aws_efs_file_system.billing_db.arn
-        ]
-        Condition = {
-          StringEquals = {
-            "elasticfilesystem:AccessPointArn" = [
-              aws_efs_access_point.inventory_db.arn,
-              aws_efs_access_point.billing_db.arn
-            ]
-          }
-        }
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "ecs_task_efs_access" {
-  role       = aws_iam_role.ecs_task.name
-  policy_arn = aws_iam_policy.efs_access.arn
-}
