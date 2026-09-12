@@ -466,25 +466,36 @@ cloud-design/
 │   ├── cloud-design.md
 │   ├── cloud-design-audit.md
 │   ├── architecture-plan.md
-│   └── architecture-justification.md
+│   ├── architecture-justification.md
+│   ├── audit-checklist.md
+│   └── terraform-task-tracking.md
+├── srcs/                          # microservice source code
+│   ├── api-gateway-app/
+│   ├── inventory-app/
+│   ├── billing-app/
+│   ├── postgres-db/
+│   └── rabbitmq/
 ├── terraform/
 │   ├── provider.tf
 │   ├── variables.tf
 │   ├── outputs.tf
+│   ├── budget.tf
 │   ├── main.tf
 │   └── modules/
 │       ├── vpc/
-│       ├── ecs/
+│       ├── security/
 │       ├── efs/
 │       ├── alb/
-│       └── security/
+│       └── ecs/
 ├── docker/
 │   ├── inventory-app/Dockerfile
 │   ├── billing-app/Dockerfile
 │   ├── api-gateway-app/Dockerfile
 │   ├── inventory-db/Dockerfile
 │   ├── billing-db/Dockerfile
-│   └── docker-compose.yml
+│   ├── rabbit-queue/Dockerfile
+│   ├── docker-compose.yml
+│   └── .env.example
 ├── ecs/
 │   └── task-definitions/
 │       ├── api-gateway-app.json
@@ -494,10 +505,15 @@ cloud-design/
 │       ├── inventory-db.json
 │       └── billing-db.json
 ├── monitoring/
-│   └── cloudwatch-dashboard.json
+│   ├── cloudwatch-dashboard.json
+│   ├── trivy-scan.txt
+│   └── load-test.txt
 └── scripts/
+    ├── bootstrap-iam.sh
+    ├── create-test-user.sh
     ├── build-push.sh
     ├── scan.sh
+    ├── load-test.sh
     ├── deploy.sh
     └── cleanup.sh
 ```

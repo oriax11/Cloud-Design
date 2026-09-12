@@ -1,0 +1,129 @@
+# Local development stack (mirrors the AWS Fargate topology on one host).
+#
+#   cd docker
+#   cp .env.example .env      # then fill in the credentials
+#   docker compose up --build
+#
+# api-gateway-app is published on ${APIGATEWAY_PORT:-3000}; everything else
+# stays on the internal compose network (like the AWS private subnets).
+services:
+  inventory-db:
+    container_name: inventory-db
+    build:
+      context: ../srcs/postgres-db
+      dockerfile: ../../docker/inventory-db/Dockerfile
+    restart: always
+    env_file: .env
+    environment:
+      - DB_USER=${INVENTORY_DB_USER}
+      - DB_NAME=${INVENTORY_DB_NAME}
+      - DB_PASSWORD=${INVENTORY_DB_PASSWORD}
+    volumes:
+      - inventory-database:/var/lib/postgresql/data
+    expose:
+      - 5432
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 3s
+      timeout: 1s
+      retries: 5
+
+  billing-db:
+    container_name: billing-db
+    build:
+      context: ../srcs/postgres-db
+      dockerfile: ../../docker/billing-db/Dockerfile
+    restart: always
+    env_file: .env
+    environment:
+      - DB_USER=${BILLING_DB_USER}
+      - DB_NAME=${BILLING_DB_NAME}
+      - DB_PASSWORD=${BILLING_DB_PASSWORD}
+    volumes:
+      - billing-database:/var/lib/postgresql/data
+    expose:
+      - 5432
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 3s
+      timeout: 1s
+      retries: 5
+
+  rabbit-queue:
+    container_name: rabbit-queue
+    hostname: rabbit-queue
+    build:
+      context: ../srcs/rabbitmq
+      dockerfile: ../../docker/rabbit-queue/Dockerfile
+    command: rabbitmq-server
+    restart: always
+    environment:
+      - RABBITMQ_USER=${RABBITMQ_USER}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+    volumes:
+      - rabbit-queue:/var/lib/rabbitmq
+    expose:
+      - 5672
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+
+  inventory-app:
+    container_name: inventory-app
+    build:
+      context: ../srcs/inventory-app
+      dockerfile: ../../docker/inventory-app/Dockerfile
+    restart: always
+    env_file: .env
+    environment:
+      - INVENTORY_APP_PORT=${INVENTORY_APP_PORT:-8080}
+    expose:
+      - 8080
+    depends_on:
+      inventory-db:
+        condition: service_healthy
+
+  billing-app:
+    container_name: billing-app
+    build:
+      context: ../srcs/billing-app
+      dockerfile: ../../docker/billing-app/Dockerfile
+    restart: always
+    env_file: .env
+    environment:
+      - RABBITMQ_HOST=rabbit-queue
+      - BILLING_APP_PORT=${BILLING_APP_PORT:-8080}
+    expose:
+      - 8080
+    depends_on:
+      billing-db:
+        condition: service_healthy
+      rabbit-queue:
+        condition: service_healthy
+
+  api-gateway-app:
+    container_name: api-gateway-app
+    build:
+      context: ../srcs/api-gateway-app
+      dockerfile: ../../docker/api-gateway-app/Dockerfile
+    restart: always
+    env_file: .env
+    environment:
+      - RABBITMQ_HOST=rabbit-queue
+      - INVENTORY_APP_HOST=inventory-app
+      - INVENTORY_APP_PORT=8080
+      - APIGATEWAY_PORT=${APIGATEWAY_PORT:-3000}
+    ports:
+      - "${APIGATEWAY_PORT:-3000}:${APIGATEWAY_PORT:-3000}"
+    depends_on:
+      rabbit-queue:
+        condition: service_healthy
+      inventory-app:
+        condition: service_started
+
+volumes:
+  inventory-database:
+  billing-database:
+  rabbit-queue:

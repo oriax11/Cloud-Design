@@ -1,0 +1,25 @@
+=== Cloud-Design load test ===
+date: Sat Sep 12 01:54:20 PM UTC 2026
+target: https://cloud-design-alb-1969773601.us-east-1.elb.amazonaws.com (api-gateway behind ALB)
+
+--- authenticated GET /api/movies ---
+url=https://cloud-design-alb-1969773601.us-east-1.elb.amazonaws.com/api/movies
+requests=600 concurrency=60 elapsed=6.3s rps=94.9
+status: {200: 600}
+avg=604ms p95=889ms
+
+--- unauthenticated GET / (liveness) ---
+url=https://cloud-design-alb-1969773601.us-east-1.elb.amazonaws.com/
+requests=600 concurrency=60 elapsed=5.5s rps=108.4
+status: {200: 600}
+avg=541ms p95=561ms
+
+--- sustained authenticated GET /api/movies (4 min) ---
+url=https://cloud-design-alb-1969773601.us-east-1.elb.amazonaws.com/api/movies
+requests=30000 concurrency=120 elapsed=243.6s rps=123.1
+status: {200: 30000}
+avg=972ms p95=1593ms
+
+--- autoscaling reaction ---
+api-gateway CPU reached 85-95% (target 70%); ECS Service Auto Scaling
+scaled cloud-design-api-gateway-service from 2 -> 3 tasks at 15:00:56.

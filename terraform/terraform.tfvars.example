@@ -12,3 +12,6 @@ billing_db_name     = "billing"
 rabbitmq_user     = "rabbit_user"
 rabbitmq_password = "change-me"
 rabbitmq_queue    = "billing_queue"
+
+# Email for AWS Budget cost alerts (leave empty to skip)
+budget_alert_email = "you@example.com"

@@ -78,11 +78,33 @@ flowchart TB
 ```
 cloud-design/
 ├── README.md
-├── docs/                       # subject, audit and architecture documents
+├── docs/                       # subject, audit, architecture + status documents
+├── srcs/                       # microservice source code
+│   ├── api-gateway-app/        # Flask gateway (proxy + queue publisher)
+│   ├── inventory-app/          # Flask inventory API (SQLAlchemy)
+│   ├── billing-app/            # Flask/RabbitMQ billing consumer
+│   ├── postgres-db/            # PostgreSQL init tooling
+│   └── rabbitmq/               # RabbitMQ init tooling
+├── docker/
+│   ├── api-gateway-app/Dockerfile
+│   ├── inventory-app/Dockerfile
+│   ├── billing-app/Dockerfile
+│   ├── inventory-db/Dockerfile
+│   ├── billing-db/Dockerfile
+│   ├── rabbit-queue/Dockerfile
+│   ├── docker-compose.yml
+│   └── .env.example
+├── ecs/
+│   └── task-definitions/       # exported ECS task definitions (reference)
+├── monitoring/
+│   ├── cloudwatch-dashboard.json
+│   ├── trivy-scan.txt          # Trivy vulnerability scan evidence
+│   └── load-test.txt           # load-test + autoscaling evidence
 ├── terraform/
 │   ├── provider.tf
 │   ├── variables.tf
 │   ├── outputs.tf
+│   ├── budget.tf               # AWS Budget cost alerts
 │   ├── main.tf                 # module wiring + state migrations (`moved`)
 │   └── modules/
 │       ├── vpc/                # VPC, subnets, IGW, NAT, route tables
@@ -91,16 +113,12 @@ cloud-design/
 │       ├── alb/                # ALB, listeners, ACM self-signed certificate
 │       └── ecs/                # ECS cluster/services, IAM, secrets, Cognito, CloudWatch
 │           └── gateway-patch.py
-├── docker/                     # (pending) per-service Dockerfiles + docker-compose.yml
-├── ecs/
-│   └── task-definitions/       # exported ECS task definitions (reference)
-├── monitoring/
-│   └── cloudwatch-dashboard.json
 └── scripts/
     ├── bootstrap-iam.sh        # create/cleanup the deployer IAM user
     ├── create-test-user.sh     # create a Cognito test user and print a token
     ├── build-push.sh           # build + push images to Docker Hub
     ├── scan.sh                 # Trivy vulnerability scan
+    ├── load-test.sh            # concurrent load generator
     ├── deploy.sh               # terraform init/fmt/validate/plan
     └── cleanup.sh              # terraform destroy
 ```
@@ -264,5 +282,17 @@ Destroy the stack when you are done to stop billing.
   these fixes is the proper long-term solution.**
 - The TLS certificate is self-signed (no owned domain for ACM validation);
   browsers will warn. Use `curl -k`.
-- The `docker/` directory (per-service Dockerfiles + `docker-compose.yml` for
-  local development) is not yet included in this repository.
+- The database images are built on `debian:bullseye` with PostgreSQL 13 and
+  carry a base-image vulnerability backlog (see `monitoring/trivy-scan.txt`).
+  Rebuild them on a maintained base (e.g. `postgres:15-alpine`).
+
+## Local development (Docker Compose)
+
+`docker/docker-compose.yml` mirrors the AWS topology on one host:
+
+```bash
+cd docker
+cp .env.example .env      # fill in the credentials
+docker compose up --build
+# api-gateway-app is published on :${APIGATEWAY_PORT:-3000}
+```

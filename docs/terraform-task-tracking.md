@@ -66,10 +66,15 @@ ALB: `http://cloud-design-alb-1969773601.us-east-1.elb.amazonaws.com`
 - [x] **Root `README.md`** — architecture, components, setup, configuration, usage, security, monitoring, cost, cleanup
 ## Pending — Deferred (to do later)
 
-- [ ] **`docker/`** — per-service Dockerfiles + `docker-compose.yml` (local `docker ps` demo)
-- [ ] **Microservice source code** — the app source (`server.py`, `app/`) is not in this repo; only the built Docker Hub images. Needed for the audit's "source code" requirement.
-- [ ] **Trivy scan evidence** — scan each image and keep the output.
-- [ ] **Rebuild `oriax11/api-gateway-app`** — apply the hop-by-hop header fix + Cognito JWT validation in the image, then remove `terraform/modules/ecs/gateway-patch.py` / the task-definition `command` override.
+- [x] **`docker/`** — per-service Dockerfiles + `docker-compose.yml` (source in `srcs/`)
+- [x] **Microservice source code** — imported from the orchestrator project into `srcs/`
+- [x] **Trivy scan evidence** — `monitoring/trivy-scan.txt` (DB images flagged for base upgrade)
+- [x] **Billing alerts** — `terraform/budget.tf` (`cloud-design-monthly` budget)
+- [x] **Load-test evidence** — `monitoring/load-test.txt` (30,600 requests, 0 errors; scaled 2→3)
+- [ ] **Rebuild images** — remove the `gateway-patch.py` / `db-pool-patch.py` startup workarounds:
+  - `oriax11/api-gateway-app` (hook-by-hop header fix + Cognito JWT validation, root route)
+  - `inventory-app` / `billing-app` (`pool_pre_ping` / `pool_recycle`)
+  - DB images on a maintained base (`postgres:15-alpine`) to clear the Debian 11 backlog
 
 ## Pending — HA / scaling
 

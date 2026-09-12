@@ -139,8 +139,13 @@ resource "aws_ecs_task_definition" "inventory" {
       image     = "docker.io/oriax11/inventory-app:latest"
       essential = true
 
-      # TEMPORARY DEBUG COMMAND
-      # Remove this when debugging is finished.
+      # Enable SQLAlchemy pool_pre_ping/pool_recycle so idle DB connections
+      # dropped through Service Connect do not cause 500s.
+      command = [
+        "sh",
+        "-c",
+        "echo '${base64encode(file("${path.module}/db-pool-patch.py"))}' | base64 -d > /tmp/db-pool-patch.py && python /tmp/db-pool-patch.py && exec python server.py"
+      ]
 
       portMappings = [
         {
@@ -212,6 +217,14 @@ resource "aws_ecs_task_definition" "billing" {
       name      = "billing-app"
       image     = "docker.io/oriax11/billing-app:latest"
       essential = true
+
+      # Enable SQLAlchemy pool_pre_ping/pool_recycle so idle DB connections
+      # dropped through Service Connect do not break message processing.
+      command = [
+        "sh",
+        "-c",
+        "echo '${base64encode(file("${path.module}/db-pool-patch.py"))}' | base64 -d > /tmp/db-pool-patch.py && python /tmp/db-pool-patch.py && exec python server.py"
+      ]
 
       portMappings = [
         {
