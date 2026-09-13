@@ -71,10 +71,11 @@ ALB: `http://cloud-design-alb-1969773601.us-east-1.elb.amazonaws.com`
 - [x] **Trivy scan evidence** — `monitoring/trivy-scan.txt` (DB images flagged for base upgrade)
 - [x] **Billing alerts** — `terraform/budget.tf` (`cloud-design-monthly` budget)
 - [x] **Load-test evidence** — `monitoring/load-test.txt` (30,600 requests, 0 errors; scaled 2→3)
-- [ ] **Rebuild images** — remove the `gateway-patch.py` / `db-pool-patch.py` startup workarounds:
-  - `oriax11/api-gateway-app` (hook-by-hop header fix + Cognito JWT validation, root route)
-  - `inventory-app` / `billing-app` (`pool_pre_ping` / `pool_recycle`)
-  - DB images on a maintained base (`postgres:15-alpine`) to clear the Debian 11 backlog
+- [x] **Rebuilt app images** — `1ee5lim/{api-gateway-app,inventory-app,billing-app}:latest`
+  (fixes baked into `srcs/`; the `gateway-patch.py` / `db-pool-patch.py` startup
+  overrides were removed from the task definitions)
+- [ ] **DB images** — rebuild `oriax11/{inventory-db,billing-db}` on a maintained base
+  (e.g. `postgres:15-alpine`) to clear the Debian bookworm backlog
 
 ## Pending — HA / scaling
 

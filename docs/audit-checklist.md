@@ -153,9 +153,9 @@ Last verified: 2026-09-12 (account `006631837921`, `us-east-1`).
 
 | # | Item | Impact | Notes |
 |---|------|--------|-------|
-| 1 | Rebuild `oriax11/api-gateway-app` | Cleanup | Removes `gateway-patch.py` startup workaround |
-| 2 | Rebuild `inventory-app` / `billing-app` with `pool_pre_ping` | Cleanup | Removes `db-pool-patch.py` workaround |
-| 3 | **DB image vulnerabilities** | Security | `debian:bullseye` + `postgresql-13` → 17 CRITICAL / 94 HIGH. Remediation: rebuild on `postgres:15-alpine` (or newer, maintained base). |
+| 1 | ✅ Rebuilt `1ee5lim/api-gateway-app` | Done | Header fix + root route + Cognito JWT baked in; no startup patch |
+| 2 | ✅ Rebuilt `1ee5lim/inventory-app` / `billing-app` with `pool_pre_ping` | Done | No startup patch |
+| 3 | **DB image vulnerabilities** | Security | `oriax11/inventory-db` / `billing-db` on `debian:bookworm` → 17 CRITICAL / 94 HIGH. Rebuild on `postgres:15-alpine` to clear. |
 | 4 | Role-play rehearsal | Audit | Practice the 14 stakeholder questions |
 | 5 | Bonus feature | Optional | FaaS/CDN/alerting |
 

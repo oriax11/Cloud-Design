@@ -27,19 +27,8 @@ resource "aws_ecs_task_definition" "api-gateway" {
   container_definitions = jsonencode([
     {
       name      = "api-gateway"
-      image     = "docker.io/oriax11/api-gateway-app:latest"
+      image     = "docker.io/1ee5lim/api-gateway-app:latest"
       essential = true
-
-      # The image's Flask proxy returns upstream hop-by-hop headers (e.g.
-      # Connection), which waitress rejects with an AssertionError, causing 500s
-      # for any client that sends "Connection: close" (including ALB health
-      # checks). ecs/gateway-patch.py fixes that and adds a root route, applied
-      # at startup until the image is rebuilt with a proper fix.
-      command = [
-        "sh",
-        "-c",
-        "echo '${base64encode(file("${path.module}/gateway-patch.py"))}' | base64 -d > /tmp/gateway-patch.py && python /tmp/gateway-patch.py && exec python server.py"
-      ]
 
       portMappings = [
         {
@@ -136,16 +125,8 @@ resource "aws_ecs_task_definition" "inventory" {
   container_definitions = jsonencode([
     {
       name      = "inventory-app"
-      image     = "docker.io/oriax11/inventory-app:latest"
+      image     = "docker.io/1ee5lim/inventory-app:latest"
       essential = true
-
-      # Enable SQLAlchemy pool_pre_ping/pool_recycle so idle DB connections
-      # dropped through Service Connect do not cause 500s.
-      command = [
-        "sh",
-        "-c",
-        "echo '${base64encode(file("${path.module}/db-pool-patch.py"))}' | base64 -d > /tmp/db-pool-patch.py && python /tmp/db-pool-patch.py && exec python server.py"
-      ]
 
       portMappings = [
         {
@@ -215,16 +196,8 @@ resource "aws_ecs_task_definition" "billing" {
   container_definitions = jsonencode([
     {
       name      = "billing-app"
-      image     = "docker.io/oriax11/billing-app:latest"
+      image     = "docker.io/1ee5lim/billing-app:latest"
       essential = true
-
-      # Enable SQLAlchemy pool_pre_ping/pool_recycle so idle DB connections
-      # dropped through Service Connect do not break message processing.
-      command = [
-        "sh",
-        "-c",
-        "echo '${base64encode(file("${path.module}/db-pool-patch.py"))}' | base64 -d > /tmp/db-pool-patch.py && python /tmp/db-pool-patch.py && exec python server.py"
-      ]
 
       portMappings = [
         {

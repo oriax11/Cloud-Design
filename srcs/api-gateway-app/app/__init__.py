@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 
+from app import auth
 from app.queue_sender import send_message_to_billing_queue
 from app.proxy import bp as bp_proxy
 
@@ -9,6 +10,12 @@ def create_app():
     app = Flask(__name__)
 
     app.register_blueprint(bp_proxy)
+
+    @app.route("/")
+    def root():
+        return jsonify(status="ok", service="api-gateway")
+
+    app.before_request(auth.check)
 
     @app.errorhandler(Exception)
     def unhandled_exception(error):

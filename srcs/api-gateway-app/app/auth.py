@@ -1,27 +1,12 @@
-"""Startup patch for the api-gateway image (oriax11/api-gateway-app).
+"""Cognito JWT enforcement for the api-gateway.
 
-Applied by the ECS task definition before the server starts. Idempotent.
-
-1. Stops the Flask proxy from copying upstream hop-by-hop headers (e.g.
-   Connection) into the response. waitress rejects those with an
-   AssertionError, which causes HTTP 500 for any client that sends
-   "Connection: close" (including the ALB health checker).
-2. Adds a small root route so the ALB health check and a browser get a 200
-   instead of the default 404.
-3. Adds Cognito JWT enforcement on /api/* using a dependency-free RS256
-   verifier (the image has no PyJWT/cryptography, and Alpine makes them hard
-   to install).
-
-Remove this once the image is rebuilt with a proper fix.
+Verifies the RS256 Bearer token on every request under /api/ using the user
+pool JWKS. Implemented without PyJWT/cryptography (the image is Alpine and
+those packages are heavy to install): RSA PKCS#1 v1.5 signature verification
+is done with the stdlib plus `requests` for the JWKS fetch.
 """
 
-import os
-
-PROXY = "/usr/src/app/proxy.py"
-APP_INIT = "/usr/src/app/__init__.py"
-AUTH = "/usr/src/app/auth.py"
-
-AUTH_SOURCE = '''import base64
+import base64
 import hashlib
 import json
 import os
@@ -82,7 +67,7 @@ def _verify(token):
 
     digest = hashlib.sha256((header_b64 + "." + payload_b64).encode()).digest()
     digestinfo = bytes.fromhex("3031300d060960864801650304020105000420") + digest
-    expected = b"\\x00\\x01" + b"\\xff" * (klen - len(digestinfo) - 3) + b"\\x00" + digestinfo
+    expected = b"\x00\x01" + b"\xff" * (klen - len(digestinfo) - 3) + b"\x00" + digestinfo
     if em != expected:
         return None
 
@@ -123,62 +108,3 @@ def check():
         return jsonify(error="invalid or expired token"), 401
 
     return None
-'''
-
-WRAPPER = '''
-
-# --- Cognito auth wrapper (added by ecs/gateway-patch.py) ---
-from app import auth as _auth  # noqa: E402
-
-_orig_create_app = create_app
-
-
-def create_app(*args, **kwargs):  # noqa: F811
-    application = _orig_create_app(*args, **kwargs)
-    application.before_request(_auth.check)
-    return application
-'''
-
-
-def patch_proxy():
-    with open(PROXY) as f:
-        src = f.read()
-    fixed = src.replace("response.headers.items()", "[]")
-    if fixed != src:
-        with open(PROXY, "w") as f:
-            f.write(fixed)
-
-
-def patch_root_route():
-    with open(APP_INIT) as f:
-        src = f.read()
-    if "_root" in src:
-        return
-    marker = "    return app"
-    route = (
-        "    @app.route(\"/\")\n"
-        "    def _root():\n"
-        "        return jsonify(status=\"ok\", service=\"api-gateway\")\n"
-        "\n"
-        "    return app"
-    )
-    src = src.replace(marker, route, 1)
-    with open(APP_INIT, "w") as f:
-        f.write(src)
-
-
-def patch_auth():
-    with open(AUTH, "w") as f:
-        f.write(AUTH_SOURCE)
-
-    with open(APP_INIT) as f:
-        src = f.read()
-    if "_orig_create_app" not in src:
-        src = src + WRAPPER
-        with open(APP_INIT, "w") as f:
-            f.write(src)
-
-
-patch_proxy()
-patch_root_route()
-patch_auth()

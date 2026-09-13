@@ -51,9 +51,9 @@ flowchart TB
 
 | Component | Image | Port | Description |
 |-----------|-------|------|-------------|
-| api-gateway-app | `docker.io/oriax11/api-gateway-app` | 3000 | Public entry point; validates the Cognito JWT and proxies to services |
-| inventory-app | `docker.io/oriax11/inventory-app` | 8080 | Movie inventory service (PostgreSQL) |
-| billing-app | `docker.io/oriax11/billing-app` | 8080 | Consumes billing messages from RabbitMQ (PostgreSQL) |
+| api-gateway-app | `docker.io/1ee5lim/api-gateway-app` | 3000 | Public entry point; validates the Cognito JWT and proxies to services |
+| inventory-app | `docker.io/1ee5lim/inventory-app` | 8080 | Movie inventory service (PostgreSQL) |
+| billing-app | `docker.io/1ee5lim/billing-app` | 8080 | Consumes billing messages from RabbitMQ (PostgreSQL) |
 | rabbit-queue | `docker.io/oriax11/rabbit-queue` | 5672/15672 | Message broker |
 | inventory-db | `docker.io/oriax11/inventory-db` | 5432 | PostgreSQL for inventory |
 | billing-db | `docker.io/oriax11/billing-db` | 5432 | PostgreSQL for billing |
@@ -112,7 +112,6 @@ cloud-design/
 │       ├── efs/                # EFS file systems, mount targets, access points
 │       ├── alb/                # ALB, listeners, ACM self-signed certificate
 │       └── ecs/                # ECS cluster/services, IAM, secrets, Cognito, CloudWatch
-│           └── gateway-patch.py
 └── scripts/
     ├── bootstrap-iam.sh        # create/cleanup the deployer IAM user
     ├── create-test-user.sh     # create a Cognito test user and print a token
@@ -273,18 +272,16 @@ Destroy the stack when you are done to stop billing.
 
 ## Known issues / notes
 
-- **api-gateway image workaround:** the published image copies upstream
-  hop-by-hop headers (`Connection`) into its response, which `waitress` rejects
-  with HTTP 500 for clients sending `Connection: close` (including ALB health
-  checks), and it has no auth. `terraform/modules/ecs/gateway-patch.py` is
-  applied at container start to strip those headers, add a `/` route, and
-  enforce Cognito JWT on `/api/*`. **Rebuilding `oriax11/api-gateway-app` with
-  these fixes is the proper long-term solution.**
+- **Application images** are published under `1ee5lim/*` and include the fixes
+  directly (hop-by-hop header stripping, `/` route, Cognito JWT enforcement on
+  `/api/*`, and SQLAlchemy `pool_pre_ping`/`pool_recycle`). No runtime patches
+  are required.
 - The TLS certificate is self-signed (no owned domain for ACM validation);
   browsers will warn. Use `curl -k`.
-- The database images are built on `debian:bullseye` with PostgreSQL 13 and
-  carry a base-image vulnerability backlog (see `monitoring/trivy-scan.txt`).
-  Rebuild them on a maintained base (e.g. `postgres:15-alpine`).
+- The database and RabbitMQ images (`oriax11/*`) are built on
+  `debian:bookworm` and carry a base-image vulnerability backlog (see
+  `monitoring/trivy-scan.txt`: 17 CRITICAL / 94 HIGH each). Rebuild them on a
+  maintained minimal base (e.g. `postgres:15-alpine`) to clear it.
 
 ## Local development (Docker Compose)
 

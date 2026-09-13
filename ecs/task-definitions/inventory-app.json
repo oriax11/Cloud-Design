@@ -2,7 +2,7 @@
   "containerDefinitions": [
     {
       "name": "inventory-app",
-      "image": "docker.io/oriax11/inventory-app:latest",
+      "image": "docker.io/1ee5lim/inventory-app:latest",
       "cpu": 0,
       "portMappings": [
         {

@@ -166,27 +166,27 @@ flowchart TB
 
 | Colour | Hex | Part |
 |--------|-----|------|
-| 🟩 Green | `#22c55e` | External / Internet — user client and Docker Hub |
-| 🟦 Blue | `#60a5fa` | Public subnet edge tier — ALB nodes and NAT Gateway |
-| 🔵 Blue | `#3b82f6` | Private compute — api-gateway, inventory-app, billing-app (active-active replicas) |
-| 🟧 Amber | `#f59e0b` | Messaging — rabbit-queue (single active broker) |
-| 🟪 Purple | `#a855f7` | Databases — inventory-db, billing-db (single active writer) |
-| ⬜ Slate dashed | `#64748b` | Standby — AZ b box shown for symmetry, **not replicated** (stateful) |
-| 🟢 Teal | `#14b8a6` | Storage — EFS |
-| 🩷 Pink | `#ec4899` | AWS managed services — CloudWatch, Cognito |
+|  Green | `#22c55e` | External / Internet — user client and Docker Hub |
+|  Blue | `#60a5fa` | Public subnet edge tier — ALB nodes and NAT Gateway |
+|  Blue | `#3b82f6` | Private compute — api-gateway, inventory-app, billing-app (active-active replicas) |
+|  Amber | `#f59e0b` | Messaging — rabbit-queue (single active broker) |
+|  Purple | `#a855f7` | Databases — inventory-db, billing-db (single active writer) |
+|  Slate dashed | `#64748b` | Standby — AZ b box shown for symmetry, **not replicated** (stateful) |
+|  Teal | `#14b8a6` | Storage — EFS |
+|  Pink | `#ec4899` | AWS managed services — CloudWatch, Cognito |
 
 **Traffic flows (edge colours):**
 
 | Colour | Hex | Traffic | Steps |
 |--------|-----|---------|-------|
-| 🟩 Green (thick) | `#22c55e` | External inbound HTTPS (to both ALB nodes) | 1: user -> ALB |
-| 🔵 Blue (thick) | `#3b82f6` | Internal synchronous HTTP | 2–3: ALB -> gateway -> inventory |
-| 🟧 Amber (thick) | `#f59e0b` | Asynchronous messaging | 4–5: gateway -> rabbit -> billing |
-| 🟪 Purple (thick) | `#a855f7` | Database traffic (both gateway/inventory replicas -> single DB) | 6–7: app -> db |
-| 🟢 Teal (dashed) | `#14b8a6` | Storage / NFS | 8: db -> EFS |
-| ⬜ Gray (dashed) | `#94a3b8` | Outbound / image pulls | 9: Docker Hub -> NAT -> private |
-| 🩷 Pink | `#ec4899` | Auth control plane | Cognito -> gateways |
-| 🟪 Magenta (dashed) | `#d946ef` | Monitoring control plane | CloudWatch -> tasks / ALB |
+|  Green (thick) | `#22c55e` | External inbound HTTPS (to both ALB nodes) | 1: user -> ALB |
+|  Blue (thick) | `#3b82f6` | Internal synchronous HTTP | 2–3: ALB -> gateway -> inventory |
+|  Amber (thick) | `#f59e0b` | Asynchronous messaging | 4–5: gateway -> rabbit -> billing |
+|  Purple (thick) | `#a855f7` | Database traffic (both gateway/inventory replicas -> single DB) | 6–7: app -> db |
+|  Teal (dashed) | `#14b8a6` | Storage / NFS | 8: db -> EFS |
+|  Gray (dashed) | `#94a3b8` | Outbound / image pulls | 9: Docker Hub -> NAT -> private |
+|  Pink | `#ec4899` | Auth control plane | Cognito -> gateways |
+|  Magenta (dashed) | `#d946ef` | Monitoring control plane | CloudWatch -> tasks / ALB |
 
 > The placement of services in AZ a / AZ b above is the intended steady state.
 > Fargate spreads the **stateless replicas** across both AZs. The **stateful

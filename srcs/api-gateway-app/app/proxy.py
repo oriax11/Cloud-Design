@@ -34,7 +34,9 @@ def gateway(path: str):
             return (
                 response.text,
                 response.status_code,
-                response.headers.items()
+                # Do not forward hop-by-hop headers (e.g. Connection); waitress
+                # rejects them with an AssertionError.
+                [],
             )
 
         except Exception as e:
