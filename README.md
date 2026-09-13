@@ -109,7 +109,7 @@ cloud-design/
 │   └── modules/
 │       ├── vpc/                # VPC, subnets, IGW, NAT, route tables
 │       ├── security/           # security groups
-│       ├── efs/                # EFS file systems, mount targets, access points
+│       ├── efs/                # EFS file system, mount targets, access points
 │       ├── alb/                # ALB, listeners, ACM self-signed certificate
 │       └── ecs/                # ECS cluster/services, IAM, secrets, Cognito, CloudWatch
 └── scripts/

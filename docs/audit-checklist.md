@@ -181,7 +181,7 @@ Debian 11 base-image backlog and should be rebuilt on a maintained base.
 - API: `GET /api/movies` → 200 with token; no token → 401; POST → 201.
 - Billing: queued while down, processed on restart.
 - Cognito: user pool `cloud-design-user-pool`.
-- EFS: 2 encrypted file systems.
+- EFS: one encrypted file system with two access points.
 - CloudWatch: 6 log groups + `cloud-design` dashboard.
 - AWS Budget: `cloud-design-monthly` ($50) with email alerts.
 - `terraform plan`: No changes.

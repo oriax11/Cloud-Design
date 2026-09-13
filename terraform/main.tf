@@ -276,21 +276,6 @@ moved {
 }
 
 moved {
-  from = aws_iam_role.ecs_instance
-  to   = module.ecs.aws_iam_role.ecs_instance
-}
-
-moved {
-  from = aws_iam_role_policy_attachment.ecs_instance
-  to   = module.ecs.aws_iam_role_policy_attachment.ecs_instance
-}
-
-moved {
-  from = aws_iam_instance_profile.ecs_instance
-  to   = module.ecs.aws_iam_instance_profile.ecs_instance
-}
-
-moved {
   from = aws_iam_role.ecs_execution
   to   = module.ecs.aws_iam_role.ecs_execution
 }
