@@ -172,10 +172,8 @@ terraform plan
 terraform apply
 cd ..
 
-# 3. Create a Cognito test user and get a JWT
-./scripts/create-test-user.sh \
-  "$(cd terraform && terraform state show 'module.ecs.aws_cognito_user_pool.main' | awk '$1=="id"{print $3}' | tr -d '"')" \
-  "$(cd terraform && terraform state show 'module.ecs.aws_cognito_user_pool_client.app' | awk '$1=="id"{print $3}' | tr -d '"')"
+# 3. Create a Cognito test user and get a JWT (pool/client auto-discovered)
+./scripts/create-test-user.sh
 ```
 
 Useful outputs:
@@ -199,8 +197,8 @@ ALB=$(cd terraform && terraform output -raw alb_dns_name)
 # Public liveness / status page
 curl -k https://$ALB/
 
-# Obtain a Cognito IdToken (see scripts/create-test-user.sh)
-TOKEN=...
+# Obtain a Cognito IdToken (pool/client auto-discovered)
+TOKEN=$(./scripts/create-test-user.sh | tail -1)
 
 # Inventory API (protected)
 curl -k -H "Authorization: Bearer $TOKEN" https://$ALB/api/movies

@@ -167,7 +167,7 @@ Service Connect** for service-to-service DNS.
 3. `aws ecs describe-services ...` (show 2/2 replicas)
 4. `curl -k https://<alb>/` → 200
 5. `curl -k https://<alb>/api/movies` → 401
-6. `./scripts/create-test-user.sh <pool> <client>` → token
+6. `./scripts/create-test-user.sh` → token (pool/client auto-discovered)
 7. `curl -k -H "Authorization: Bearer <token>" https://<alb>/api/movies` → 200
 8. `POST /api/movies` → 201; `POST /api/billing/` → 200
 9. Billing resilience: scale billing to 0, send billing, scale back, show the row.
